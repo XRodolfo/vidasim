@@ -14,10 +14,17 @@ export default function Mapa({ player, mundo, t, avancarTempo, setTelaAtual }) {
           <button onClick={() => setTelaAtual("lojaRoupas")} style={{ backgroundColor: '#9b59b6', color: 'white', padding: '15px', borderRadius: '8px', border: 'none', cursor: 'pointer', margin: '5px' }}>
             🛍️ Boutique Fashion
           </button>
+          <button onClick={() => setTelaAtual("prefeitura")} style={{ backgroundColor: '#2980b9', color: 'white', padding: '15px', borderRadius: '8px', border: 'none', cursor: 'pointer', margin: '5px' }}>
+            🏛️ Prefeitura Municipal
+          </button>
+          <button onClick={() => setTelaAtual("centroComercial")} style={{ backgroundColor: '#2c3e50', color: 'white', padding: '15px', borderRadius: '8px', border: '2px solid #f1c40f', cursor: 'pointer', margin: '5px' }}>
+            🏢 Prédio Comercial Corporativo
+        </button>
+        <button onClick={() => setTelaAtual("aeroporto")} style={{ backgroundColor: '#0ea5e9', color: 'white', padding: '15px', borderRadius: '8px', border: 'none', cursor: 'pointer', margin: '5px' }}>
+            ✈️ Aeroporto Internacional
+        </button>
           <button onClick={() => { if(avancarTempo(2, 20)) alert("Explorou e encontrou uma empresa local que faliu. Oportunidade futura!"); }} style={{backgroundColor: '#555'}}>🕵️ Explorar Ecossistema</button>
           <button onClick={() => setTelaAtual("quarto")} style={{gridColumn: 'span 2', backgroundColor: '#ff4757'}}>{t.voltarCasa}</button>
-          
-          
         </div>
       </div>
     </div>

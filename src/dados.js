@@ -52,20 +52,29 @@ export const profissoes = [
 //4 - Nomes e Sobrenomes
 export const culturas = {
   Latina: {
-    primeiros: ["Mateus", "Lucas", "Sofia", "Isabela", "Gabriel", "Beatriz", "Tiago", "Ana"],
-    sobrenomes: ["Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Almeida"]
+    nomesHomens: ["Carlos", "Miguel", "João", "Pedro", "Lucas", "Mateus", "Gabriel", "Rafael"],
+    nomesMulheres: ["Ana", "Maria", "Julia", "Sofia", "Camila", "Mariana", "Beatriz", "Larissa"],
+    sobrenomes: ["Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves"]
   },
   Asiática: {
-    primeiros: ["Yuki", "Sakura", "Hiroshi", "Kenji", "Aiko", "Haruto", "Mei", "Ren"],
-    sobrenomes: ["Tanaka", "Sato", "Suzuki", "Watanabe", "Ito", "Nakamura", "Kobayashi"]
+    nomesHomens: ["Hiroshi", "Kenji", "Ren", "Sora", "Haruto", "Yuto", "Akira"],
+    nomesMulheres: ["Yuki", "Sakura", "Hina", "Aoi", "Rin", "Mei", "Mio"],
+    sobrenomes: ["Sato", "Suzuki", "Takahashi", "Tanaka", "Watanabe", "Ito", "Nakamura"]
   },
   Negra: {
-    primeiros: ["Tunde", "Zuri", "Amina", "Kwame", "Malik", "Nia", "Jabari", "Keisha"],
-    sobrenomes: ["Okonkwo", "Diop", "Mensah", "Diallo", "Traoré", "Bello", "Mbeki"]
+    nomesHomens: ["Kwame", "Tariq", "Malik", "Jamal", "Kofi", "DeAndre", "Terrence"],
+    nomesMulheres: ["Amina", "Zuri", "Nia", "Aisha", "Keisha", "Imani", "Jada"],
+    sobrenomes: ["Okafor", "Mensah", "Diallo", "Washington", "Jefferson", "Jackson"]
+  },
+  Mista: {
+    nomesHomens: ["Alex", "Jordan", "Taylor", "Ryan", "Chris", "Sam", "Tyler"],
+    nomesMulheres: ["Alex", "Jordan", "Taylor", "Riley", "Casey", "Morgan", "Sam"],
+    sobrenomes: ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis"]
   },
   Branca: {
-    primeiros: ["Erik", "Astrid", "Liam", "Emma", "Olivia", "Noah", "Freja", "Magnus"],
-    sobrenomes: ["Hansen", "Johansen", "Olsen", "Larsen", "Sorensen", "Jensen", "Andersen"]
+    nomesHomens: ["Liam", "Noah", "Oliver", "Elijah", "William", "James", "Benjamin"],
+    nomesMulheres: ["Emma", "Olivia", "Ava", "Isabella", "Sophia", "Mia", "Charlotte"],
+    sobrenomes: ["Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer"]
   }
 };
 // 1. Catálogo de Veículos

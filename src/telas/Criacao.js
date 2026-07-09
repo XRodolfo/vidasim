@@ -3,6 +3,24 @@ import Avatar from '../componentes/Avatar';
 import { cmParaPol } from '../dados';
 
 export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setTelaAtual }) {
+  
+  const handleGeneroChange = (g) => {
+    // Configura uma busca coerente padrão baseada no gênero e orientação
+    let buscaDefault = g === "Mulher" ? "Homens" : "Mulheres";
+    if (player.orientacao === "Homosexual") buscaDefault = g === "Mulher" ? "Mulheres" : "Homens";
+    if (player.orientacao === "Bissexual" || player.orientacao === "Pansexual") buscaDefault = "Ambos";
+    
+    setPlayer({ ...player, genero: g, preferenciaBusca: buscaDefault });
+  };
+
+  const handleOrientacaoChange = (o) => {
+    let buscaDefault = player.genero === "Mulher" ? "Homens" : "Mulheres";
+    if (o === "Homosexual") buscaDefault = player.genero === "Mulher" ? "Mulheres" : "Homens";
+    if (o === "Bissexual" || o === "Pansexual" || o === "Assexual") buscaDefault = "Ambos";
+
+    setPlayer({ ...player, orientacao: o, preferenciaBusca: buscaDefault });
+  };
+
   return (
     <div className="container">
       <h1>{t.tituloCriacao}</h1>
@@ -10,7 +28,7 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
         
         <div style={{display: 'flex', gap: '20px', flexWrap: 'wrap'}}>
           
-          {/* COLUNA 1: IDENTIDADE E CIDADES */}
+          {/* COLUNA 1: IDENTIDADE E ORIENTAÇÃO */}
           <div style={{flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '10px'}}>
               <h2 style={{color: '#007bff'}}>Identidade</h2>
               
@@ -19,39 +37,46 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
               
               <label>{t.idade} (Mínimo 18 anos)</label>
               <input 
-                type="number" 
-                min="18"
-                value={player.idade} 
-                onChange={(e) => {
-                  let val = parseInt(e.target.value);
-                  setPlayer({...player, idade: val});
-                }}
-                onBlur={(e) => {
-                  // Proteção extra: se ele digitar "5" e clicar fora, o jogo corrige para 18
-                  if (!player.idade || player.idade < 18) {
-                     setPlayer({...player, idade: 18});
-                  }
-                }} 
+                type="number" min="18" value={player.idade} 
+                onChange={(e) => setPlayer({...player, idade: parseInt(e.target.value) || 18})}
+                onBlur={() => { if (player.idade < 18) setPlayer({...player, idade: 18}); }} 
               />
               
               <label>{t.genero}</label>
-              <select value={player.genero} onChange={(e) => setPlayer({...player, genero: e.target.value})}>
+              <select value={player.genero} onChange={(e) => handleGeneroChange(e.target.value)}>
                   <option value="Mulher">{t.mulher}</option>
                   <option value="Homem">{t.homem}</option>
               </select>
 
-              <label>🌐 Raça / Cidade de Nascimento:</label>
-              <select value={player.cidade_origem} onChange={(e) => setPlayer({...player, cidade_origem: e.target.value})}>
-                  {Object.keys(mundo).map(id => <option key={`origem-${id}`} value={id}>{mundo[id].nome} (Etnia: {mundo[id].etnia})</option>)}
+              {/* NOVOS SELETORES EM CRIACAO */}
+              <label>🧬 Identidade de Gênero:</label>
+              <select value={player.identidadeGenero || "Cisgênero"} onChange={(e) => setPlayer({...player, identidadeGenero: e.target.value})}>
+                <option value="Cisgênero">Cisgênero (Identifica-se com o sexo biológico)</option>
+                <option value="Transgênero">Transgênero</option>
+                <option value="Não-Binário">Não-Binário</option>
               </select>
 
-              <label>📍 Onde você mora atualmente:</label>
+              <label>❤️ Orientação Sexual:</label>
+              <select value={player.orientacao || "Heterossexual"} onChange={(e) => handleOrientacaoChange(e.target.value)}>
+                <option value="Heterossexual">Heterossexual</option>
+                <option value="Homosexual">Homossexual / Gay / Lésbica</option>
+                <option value="Bissexual">Bissexual</option>
+                <option value="Pansexual">Pansexual</option>
+                <option value="Assexual">Assexual</option>
+              </select>
+
+              <label>🌐 Raça / Origem:</label>
+              <select value={player.cidade_origem} onChange={(e) => setPlayer({...player, cidade_origem: e.target.value})}>
+                  {Object.keys(mundo).map(id => <option key={`origem-${id}`} value={id}>{mundo[id].nome} ({mundo[id].etnia})</option>)}
+              </select>
+
+              <label>📍 Cidade Atual:</label>
               <select value={player.cidade_id} onChange={(e) => setPlayer({...player, cidade_id: e.target.value})}>
-                  {Object.keys(mundo).map(id => <option key={`atual-${id}`} value={id}>{mundo[id].nome} - Custo de Vida: {mundo[id].custo_vida}x</option>)}
+                  {Object.keys(mundo).map(id => <option key={`atual-${id}`} value={id}>{mundo[id].nome}</option>)}
               </select>
           </div>
 
-          {/* COLUNA 2: FÍSICA, BIOLOGIA E CABELO */}
+          {/* COLUNA 2: FÍSICA E BIOLOGIA */}
           <div style={{flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '10px'}}>
               <h2 style={{color: '#ff4757'}}>Biologia do Corpo</h2>
               
@@ -61,7 +86,6 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
               <label>Peso (kg)</label>
               <input type="number" value={player.peso} onChange={(e) => setPlayer({...player, peso: parseInt(e.target.value) || 60})} />
 
-              {/* CONTROLES DE CABELO ADICIONADOS */}
               <label>✂️ Estilo do Cabelo:</label>
               <select value={player.cabelo} onChange={(e) => setPlayer({...player, cabelo: e.target.value})}>
                 <option value="Careca">Careca</option>
@@ -83,25 +107,14 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
               {player.genero === "Mulher" ? (
                 <>
                   <label>Tamanho dos Seios (cm):</label>
-                  <input 
-                    type="range" 
-                    min="50" max="190" 
-                    value={player.seios_cm || 95} 
-                    onChange={(e) => setPlayer({...player, seios_cm: parseInt(e.target.value)})} 
-                  />
+                  <input type="range" min="50" max="190" value={player.seios_cm || 95} onChange={(e) => setPlayer({...player, seios_cm: parseInt(e.target.value)})} />
                   <small>{player.seios_cm} cm ({cmParaPol(player.seios_cm)} in)</small>
                 </>
               ) : (
                 <>
                   <label>Tamanho do Pênis (cm):</label>
-                  <input 
-                    type="number" 
-                    value={player.penis_cm || 14} 
-                    onChange={(e) => setPlayer({...player, penis_cm: parseInt(e.target.value)})} 
-                  />
-                  <small style={{color: '#888'}}>
-                    {player.penis_cm} cm ({cmParaPol(player.penis_cm)} in)
-                  </small>
+                  <input type="number" value={player.penis_cm || 14} onChange={(e) => setPlayer({...player, penis_cm: parseInt(e.target.value)})} />
+                  <small>{player.penis_cm} cm ({cmParaPol(player.penis_cm)} in)</small>
                 </>
               )}
 
@@ -113,41 +126,11 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
               </select>
           </div>
 
-          {/* COLUNA 3: AVATAR VISUAL E ROUPAS */}
+          {/* COLUNA 3: PROVADOR */}
           <div style={{flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px'}}>
              <h2 style={{color: '#2ed573'}}>Visualização</h2>
-             
              <div style={{width: '200px', height: '400px'}}>
-               <Avatar player={player} mundo={mundo} />
-             </div>
-
-             <div style={{display: 'flex', flexDirection: 'column', gap: '5px', width: '100%', backgroundColor: '#f4f4f4', padding: '10px', borderRadius: '8px'}}>
-               <h4 style={{margin: '0 0 5px 0', textAlign: 'center'}}>Roupeiro de Testes</h4>
-               
-               <label style={{fontSize: '12px', display: 'flex', justifyContent: 'space-between'}}>
-                 Peça Superior:
-                 <select value={player.roupaTop} onChange={(e) => setPlayer({...player, roupaTop: e.target.value})}>
-                   <option value="Camiseta">Camiseta</option>
-                   <option value="Nenhuma">Nenhuma (Nu)</option>
-                 </select>
-               </label>
-
-               <label style={{fontSize: '12px', display: 'flex', justifyContent: 'space-between'}}>
-                 Peça Inferior:
-                 <select value={player.roupaBottom} onChange={(e) => setPlayer({...player, roupaBottom: e.target.value})}>
-                   <option value="Calça">Calça Jeans</option>
-                   <option value="Nenhuma">Nenhuma (Nu)</option>
-                 </select>
-               </label>
-
-               <label style={{fontSize: '12px', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '5px'}}>
-                 <input 
-                    type="checkbox" 
-                    checked={player.roupaIntima} 
-                    onChange={(e) => setPlayer({...player, roupaIntima: e.target.checked})}
-                 />
-                 Usar Roupa Íntima
-               </label>
+               <Avatar player={player} mundo={{}} />
              </div>
           </div>
 
