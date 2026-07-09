@@ -1,90 +1,112 @@
 import React, { useState } from 'react';
 import Avatar from '../componentes/Avatar';
 
-export default function Motel({ player, setPlayer, mundo, npc, contatosNPCs, setContatosNPCs, setTelaAtual, avancarTempo }) {
-  const [prazerNPC, setPrazerNPC] = useState(0);
-  const [orgasmos, setOrgasmos] = useState(0);
-  const [logAcoes, setLogAcoes] = useState([`Você e ${npc.nome} entram no quarto. O clima está quente...`]);
-  const [eventoFinalizado, setEventoFinalizado] = useState(false);
+export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, setTelaAtual }) {
+  const [fase, setFase] = useState("preliminares"); // preliminares, acao, climax, pos
+  const [excitacaoPlayer, setExcitacaoPlayer] = useState(20);
+  const [excitacaoNPC, setExcitacaoNPC] = useState(npc?.libido || 30);
+  const [log, setLog] = useState(["Você fechou a porta da suíte master. O clima está fervendo."]);
 
-  // Atributos sexuais padrão caso o NPC seja antigo
-  const npcAtivo = { 
-    ...npc, 
-    libido: npc.libido || 50, 
-    sensibilidade: npc.sensibilidade || 50 
+  if (!npc) {
+    return <div className="container"><div className="card"><button onClick={() => setTelaAtual("mapa")}>Voltar</button></div></div>;
+  }
+
+  const executarTurno = (acao) => {
+    let addPlayer = 0;
+    let addNPC = 0;
+    let txt = "";
+
+    if (acao === "beijar") {
+      addPlayer = 15 + Math.floor(player.carisma / 10);
+      addNPC = 20 + Math.floor(npc.sensibilidade / 10);
+      txt = `Você puxou ${npc.nome} pela cintura e encaixou um beijo ardente e profundo.`;
+    } 
+    else if (acao === "despir") {
+      addPlayer = 20; addNPC = 25;
+      txt = `As roupas caem no chão. Você admira o corpo de ${npc.nome} (${npc.genero === 'Mulher' ? `${npc.seios_cm}cm de seios` : `${npc.penis_cm}cm de dotação`}).`;
+      setFase("acao");
+    }
+    else if (acao === "estimular") {
+      addPlayer = 25;
+      addNPC = 30 + Math.floor(player.forca / 10);
+      txt = `Você estimula as zonas mais sensíveis do parceiro, arrancando gemidos ecoando pela suíte.`;
+    }
+    const nPlayer = Math.min(100, excitacaoPlayer + addPlayer);
+    const nNPC = Math.min(100, excitacaoNPC + addNPC);
+
+    setExcitacaoPlayer(nPlayer);
+    setExcitacaoNPC(nNPC);
+    setLog(prev => [txt, ...prev]);
+
+    if (nPlayer >= 100 || nNPC >= 100) {
+      setFase("climax");
+    }
   };
 
-  const realizarAcao = (tipo) => {
-    if (!player.godMode && player.energia < 10) {
-      setLogAcoes(["⚠️ Exausto! Precisa finalizar.", ...logAcoes]);
-      return;
-    }
-    if (!player.godMode) setPlayer(prev => ({ ...prev, energia: prev.energia - 10 }));
-
-    let ganhoPrazer = 0;
-    let mensagem = "";
-
-    // Lógica de Performance baseada em atributos
-    if (tipo === "preliminares") {
-      ganhoPrazer = 10 + (player.carisma * 0.1) + (npcAtivo.sensibilidade * 0.15);
-      mensagem = `Você beija e acaricia ${npc.nome}.`;
-    } else if (tipo === "oral") {
-      ganhoPrazer = 15 + (player.inteligencia * 0.2);
-      mensagem = `Você usa a técnica... ${npc.nome} reage intensamente.`;
-    } else if (tipo === "principal") {
-      let bonusFisico = player.genero === "Homem" 
-        ? (player.penis === "Grande" ? 15 : player.penis === "Extraordinário" ? 30 : 5)
-        : (player.seios === "Fartos" || player.bunda === "Grande" ? 25 : 10);
-      ganhoPrazer = 10 + (player.forca * 0.1) + (player.resistencia * 0.15) + (bonusFisico * 0.5) + (npcAtivo.libido * 0.1);
-      mensagem = `O ritmo acelera!`;
-    }
-
-    let novoPrazer = prazerNPC + ganhoPrazer;
-    if (novoPrazer >= 100) {
-      mensagem += ` 🔥 CLÍMAX! ${npc.nome} atinge o orgasmo!`;
-      novoPrazer -= 100;
-      setOrgasmos(orgasmos + 1);
-    }
-
-    setPrazerNPC(novoPrazer);
-    setLogAcoes([mensagem, ...logAcoes]);
+  const gozar = () => {
+    avancarTempo(2, 40); // Consome 2 horas e 40 estamina
+    setFase("pos");
+    setLog(prev => ["✨ O ápice chega como uma explosão. Uma onda de espasmos e prazer absoluto toma conta de ambos na cama desarrumada.", ...prev]);
   };
-
-  const finalizarEncontro = () => {
-    if (!avancarTempo(3, 10)) { setTelaAtual("quarto"); return; }
-    const ganhoAfeto = orgasmos === 0 ? -10 : orgasmos * 20;
-    const npcsAtualizados = contatosNPCs.map(n => n.id === npc.id ? { ...n, afeto: Math.min(100, n.afeto + ganhoAfeto) } : n);
-    setContatosNPCs(npcsAtualizados);
-    setEventoFinalizado(true);
-  };
-
-  if (eventoFinalizado) return (
-    <div className="container">
-      <div className="card">
-        <h2>Noite Concluída</h2>
-        <p>Orgasmos: {orgasmos}</p>
-        <button onClick={() => setTelaAtual("quarto")}>Retornar</button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="container">
-      <div className="card">
-        <h2>{npc.nome}</h2>
-        <div style={{height: '25px', backgroundColor: '#333', borderRadius: '12px', overflow: 'hidden'}}>
-          <div style={{width: `${Math.min(100, prazerNPC)}%`, backgroundColor: '#ec4899', height: '100%'}}></div>
+      <div className="card" style={{ backgroundColor: '#090514', color: '#fff', borderColor: '#d946ef' }}>
+        <h1 style={{ color: '#d946ef', textShadow: '0 0 10px #d946ef' }}>🏩 Suíte Suave - Neon Motel</h1>
+        
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginTop: '20px' }}>
+          <div style={{ flex: 1, minWidth: '200px', backgroundColor: '#ececec', borderRadius: '10px', height: '300px', overflow: 'hidden' }}>
+             <Avatar player={npc} mundo={mundo} />
+          </div>
+
+          <div style={{ flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <h3>Parceiro: {npc.nome}</h3>
+            
+            {/* Barras de Excitação */}
+            <div>
+              <label>🔥 Sua Excitação: {excitacaoPlayer}%</label>
+              <div style={{ width: '100%', backgroundColor: '#221e2f', height: '15px', borderRadius: '5px', overflow: 'hidden', marginTop: '5px' }}>
+                <div style={{ width: `${excitacaoPlayer}%`, backgroundColor: '#d946ef', height: '100%', transition: '0.3s' }}></div>
+              </div>
+            </div>
+
+            <div>
+              <label>💓 Excitação de {npc.nome}: {excitacaoNPC}%</label>
+              <div style={{ width: '100%', backgroundColor: '#221e2f', height: '15px', borderRadius: '5px', overflow: 'hidden', marginTop: '5px' }}>
+                <div style={{ width: `${excitacaoNPC}%`, backgroundColor: '#ec4899', height: '100%', transition: '0.3s' }}></div>
+              </div>
+            </div>
+
+            {/* Painel Interativo de Comandos */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '15px' }}>
+              {fase === "preliminares" && (
+                <>
+                  <button onClick={() => executarTurno("beijar")} style={btnM}>💋 Beijo Ardente</button>
+                  <button onClick={() => executarTurno("despir")} style={{ ...btnM, backgroundColor: '#d946ef' }}>👙 Remover Roupas</button>
+                </>
+              )}
+              {fase === "acao" && (
+                <>
+                  <button onClick={() => executarTurno("estimular")} style={btnM}>👅 Estimular Cama</button>
+                  <button onClick={() => executarTurno("beijar")} style={btnM}>🍒 Provocar</button>
+                </>
+              )}
+              {fase === "climax" && (
+                <button onClick={gozar} style={{ ...btnM, gridColumn: '1/3', backgroundColor: '#e11d48', animation: 'pulse 1s infinite' }}>💥 ATINGIR O CLÍMAX MULTIPLO</button>
+              )}
+              {fase === "pos" && (
+                <button onClick={() => setTelaAtual("mapa")} style={{ ...btnM, gridColumn: '1/3', backgroundColor: '#475569' }}>🚶 Vestir-se e Sair</button>
+              )}
+            </div>
+          </div>
         </div>
-        <div style={{height: '150px', overflowY: 'auto', background: '#000', padding: '10px', marginTop: '10px'}}>
-          {logAcoes.map((m, i) => <div key={i}>{m}</div>)}
+
+        {/* Console de Relatos Históricos */}
+        <div style={{ marginTop: '20px', backgroundColor: '#130d24', border: '1px solid #3b0764', padding: '15px', borderRadius: '8px', height: '100px', overflowY: 'auto', fontSize: '13px', color: '#f472b6' }}>
+          {log.map((l, idx) => <p key={idx} style={{ margin: '0 0 5px 0' }}>{l}</p>)}
         </div>
-        <div style={{display: 'flex', gap: '10px', marginTop: '10px'}}>
-          <button onClick={() => realizarAcao("preliminares")}>👄</button>
-          <button onClick={() => realizarAcao("oral")}>👅</button>
-          <button onClick={() => realizarAcao("principal")}>🔥</button>
-        </div>
-        <button onClick={finalizarEncontro} style={{marginTop: '10px'}}>Finalizar</button>
       </div>
     </div>
   );
 }
+const btnM = { backgroundColor: '#2e1065', border: 'none', color: '#fff', padding: '12px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' };
