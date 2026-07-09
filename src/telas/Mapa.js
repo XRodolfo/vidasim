@@ -11,8 +11,13 @@ export default function Mapa({ player, mundo, t, avancarTempo, setTelaAtual }) {
         <div className="acoes" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px'}}>
           <button onClick={() => setTelaAtual("agenciaEmprego")}>{t.agencia}</button>
           <button onClick={() => setTelaAtual("academia")}>{t.academia}</button>
+          <button onClick={() => setTelaAtual("lojaRoupas")} style={{ backgroundColor: '#9b59b6', color: 'white', padding: '15px', borderRadius: '8px', border: 'none', cursor: 'pointer', margin: '5px' }}>
+            🛍️ Boutique Fashion
+          </button>
           <button onClick={() => { if(avancarTempo(2, 20)) alert("Explorou e encontrou uma empresa local que faliu. Oportunidade futura!"); }} style={{backgroundColor: '#555'}}>🕵️ Explorar Ecossistema</button>
           <button onClick={() => setTelaAtual("quarto")} style={{gridColumn: 'span 2', backgroundColor: '#ff4757'}}>{t.voltarCasa}</button>
+          
+          
         </div>
       </div>
     </div>

@@ -116,4 +116,27 @@ export const medidasBase = {
 // Função de conversão utilitária
 export const cmParaPol = (cm) => (cm / 2.54).toFixed(1);
 
+// Adicione isso no final do seu src/dados.js
 
+export const catalogoRoupas = {
+  comuns: [
+    { id: "cam_branca", nome: "Camiseta Básica Branca", preco: 50, tipo: "roupaTop", valor: "Camiseta", cor: "#ffffff" },
+    { id: "cam_preta", nome: "Camiseta Preta", preco: 55, tipo: "roupaTop", valor: "Camiseta", cor: "#222222" },
+    { id: "calca_jeans", nome: "Calça Jeans Clássica", preco: 120, tipo: "roupaBottom", valor: "Calça", cor: "#1e3799" },
+    { id: "calca_escura", nome: "Calça Sarja Escura", preco: 130, tipo: "roupaBottom", valor: "Calça", cor: "#111111" }
+  ],
+  academia: [
+    { id: "top_treino", nome: "Top de Treino", preco: 80, tipo: "roupaTop", valor: "Top", cor: "#ff4757", genero: "Mulher" },
+    { id: "regata_treino", nome: "Regata Cavada", preco: 60, tipo: "roupaTop", valor: "Camiseta", cor: "#34495e" },
+    { id: "short_treino", nome: "Short de Corrida", preco: 70, tipo: "roupaBottom", valor: "Short", cor: "#2d3436" }
+  ],
+  intimasGerais: [
+    { id: "intima_branca", nome: "Conjunto Algodão Branco", preco: 40, tipo: "roupaIntima", valor: true, cor: "#ffffff" },
+    { id: "intima_preta", nome: "Conjunto Algodão Preto", preco: 45, tipo: "roupaIntima", valor: true, cor: "#222222" }
+  ],
+  intimasSensuais: [
+    { id: "lingerie_vermelha", nome: "Lingerie de Renda Vermelha", preco: 150, tipo: "roupaIntima", valor: true, cor: "#c23616", genero: "Mulher" },
+    { id: "lingerie_preta", nome: "Sutiã e Calcinha Noir", preco: 180, tipo: "roupaIntima", valor: true, cor: "#111", genero: "Mulher" },
+    { id: "sunga_boxer", nome: "Sunga Boxer Seda", preco: 90, tipo: "roupaIntima", valor: true, cor: "#8c7ae6", genero: "Homem" }
+  ]
+};

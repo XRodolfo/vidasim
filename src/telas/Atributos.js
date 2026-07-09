@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Atributos({ player, setPlayer, t, setTelaAtual }) {
+export default function Atributos({ player, setPlayer, t, setTelaAtual, iniciarJogo }) {
   // Se o player for null/undefined, ele vai dar erro ao ler 'player.forca'
   if (!player) return <div>Carregando...</div>;
   
@@ -42,7 +42,9 @@ export default function Atributos({ player, setPlayer, t, setTelaAtual }) {
             />
           </div>
         ))}
-        <button onClick={() => setTelaAtual("start")}>Confirmar</button>
+        <button onClick={iniciarJogo} style={{ backgroundColor: '#28a745' }}>
+          Confirmar e Iniciar Vida
+        </button>
       </div>
     </div>
   );
