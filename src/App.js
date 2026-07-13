@@ -1,140 +1,119 @@
 import React, { useState } from 'react';
-import './App.css';
-import { textos, mundoInicial, profissoes } from './dados';
-import { inicializarDadosReproductivos } from './utils/reproductionSystem';
-import { inicializarRelacionamento } from './utils/relationshipSystem';
-import DistritoComercial from './telas/DistritoComercial';
-import DistritoNoturno from './telas/DistritoNoturno';
-import Criacao from './telas/Criacao';
-import Quarto from './telas/Quarto';
-import Mapa from './telas/Mapa';
-import Celular from './telas/Celular';
-import Agencia from './telas/Agencia';
-import Academia from './telas/Academia';
-import CriadorCidade from './telas/CriadorCidade';
-import Motel from './telas/Motel';
-import Atributos from './telas/Atributos';
-import CentroComercial from './telas/CentroComercial';
-import Prefeitura from './telas/Prefeitura';
-import Aeroporto from './telas/Aeroporto';
-import LojaVeiculos from './telas/LojaVeiculos';
-import Imobiliaria from './telas/Imobiliaria';
-import LojaRoupas from './telas/LojaRoupas';
-import ContraceptivoDialog from './componentes/ContraceptivoDialog';
-import Trabalho from './telas/Trabalho';
-import Banco from './telas/Banco';
-import Restaurante from './telas/Restaurante'
+import Avatar from '../Avatar';
+import ModalEscolhaLugar from './ModalEscolhaLugar';
+import DialogoRelacionamento from '../DialogoRelacionamento';
 
-function App() {
-  const [idioma] = useState("pt");
-  const t = textos[idioma];
+export default function AppChat({ player, setPlayer, mundo, contatosNPCs, setContatosNPCs, avancarTempo, setParceiroMotel, setTelaAtual, voltarHome }) {
+  const [npcAtivoId, setNpcAtivoId] = useState(null);
+  const [verPerfil, setVerPerfil] = useState(false);
+  const [agendarEncontro, setAgendarEncontro] = useState(false);
+  const [dialogoRelacionamento, setDialogoRelacionamento] = useState(null);
 
-  const [telaAtual, setTelaAtual] = useState("menuPrincipal");
-  const [mundo, setMundo] = useState(mundoInicial);
-  const [contatosNPCs, setContatosNPCs] = useState([]); 
-  const [parceiroMotel, setParceiroMotel] = useState(null);
-  
-  const [player, setPlayer] = useState({
-    nome: "Alex", idade: 18, genero: "Mulher",
-    orientacao: "Heterossexual", identidadeGenero: "Cisgênero", preferenciaBusca: "Homens",
-    periciaSexual: 15,
-    cidade_origem: "SaoPaulo", cidade_id: "SaoPaulo", 
-    altura: 165, peso: 60, cabelo: "Longos", corCabelo: "#2c1b18",
-    seios: "Médios", penis: "Médio", bunda: "Redonda", seios_cm: 95, penis_cm: 14,
-    roupaTop: "Camiseta", roupaBottom: "Calça", roupaIntima: true,       
-    corRoupaTop: "#f1c40f", corRoupaBottom: "#1e3799",
-    dinheiro: 1000, energia: 100, dia: 1, hora: 8, pontosDisponiveis: 30, 
-    forca: 50, reflexo: 50, inteligencia: 50, carisma: 50, resistencia: 50,
-    profissao_id: null, tituloProfissao: null, salario: 0, trabalhouHoje: false,
-    veiculos: [], propriedades: [],
-    dadosReproductivos: inicializarDadosReproductivos(),
-    inventario: { imoveis: [], veiculos: [], itens: [], dinheiro: 0 },
-    relacionamento: inicializarRelacionamento(),
-    casa: { tipo: "apartamento_simples", comodoAtual: "sala_simples" }
-  });
+  const npcAtivo = contatosNPCs.find(npc => npc.id === npcAtivoId);
 
-  const salvarJogo = () => {
-    localStorage.setItem('vidasim_savegame', JSON.stringify({ player, mundo, contatosNPCs }));
-    alert(t.saveSucesso);
+  const atualizarNPC = (id, mudancas) => {
+    setContatosNPCs(contatosNPCs.map(npc => npc.id === id ? { ...npc, ...mudancas } : npc));
   };
 
-  const carregarJogo = () => {
-    const saveCru = localStorage.getItem('vidasim_savegame');
-    if (saveCru) {
-      const dadosLoad = JSON.parse(saveCru);
-      if (!dadosLoad.player.orientacao) dadosLoad.player.orientacao = "Heterossexual";
-      if (!dadosLoad.player.preferenciaBusca) dadosLoad.player.preferenciaBusca = "Homens";
-      if (!dadosLoad.player.veiculos) dadosLoad.player.veiculos = [];
-      if (!dadosLoad.player.propriedades) dadosLoad.player.propriedades = [];
-      if (!dadosLoad.player.periciaSexual) dadosLoad.player.periciaSexual = 15;
-      setPlayer(dadosLoad.player); setMundo(dadosLoad.mundo); setContatosNPCs(dadosLoad.contatosNPCs || []);
-      setTelaAtual("quarto"); alert(t.loadSucesso);
-    } else { alert(t.loadErro); }
-  };
+  const interagir = (tipo) => {
+    if (!avancarTempo(1, 5)) return;
+    
+    let historico = npcAtivo.historico || [];
+    let afeto = npcAtivo.afeto || 10;
+    let resposta = "...";
+    let msgPlayer = "";
+    const comprometido = npcAtivo.estadoCivil === "Casado(a)" || npcAtivo.estadoCivil === "Numa relação";
 
-  const iniciarJogo = () => {
-    let baseF = 50; let baseRef = 50; let baseRes = 50;
-    const imc = player.peso / ((player.altura / 100) * (player.altura / 100));
-    if (imc < 18.5) { baseF -= 15; baseRef += 15; baseRes -= 10; }
-    else if (imc < 24.9) { baseF += 10; baseRef += 5; baseRes += 15; }
-    else { baseF += 15; baseRef -= 15; baseRes -= 10; }
-    setPlayer(prev => ({ ...prev, forca: Math.round(baseF), reflexo: Math.round(baseRef), resistencia: Math.round(baseRes) }));
-    setTelaAtual("quarto");
-  };
-
-  const avancarTempo = (horas, custoEnergia) => {
-    if (player.energia < custoEnergia && !player.godMode) { alert(t.exaustao); return false; }
-    let novaHora = player.hora + horas; let novoDia = player.dia; let novoDinheiro = player.dinheiro;
-    if (novaHora >= 24) {
-      novaHora -= 24; novoDia += 1;
-      const custoDiario = Math.round(15 * mundo[player.cidade_id].custo_vida);
-      if (!player.godMode) novoDinheiro -= custoDiario; 
+    if (tipo === "trabalho") { msgPlayer = "Como andam as coisas no trabalho?"; resposta = `Tudo normal na empresa!`; afeto = Math.min(100, afeto + 5); }
+    else if (tipo === "hobbies") { msgPlayer = "O que fazes no tempo livre?"; resposta = "Gosto de descansar e passear."; afeto = Math.min(100, afeto + 8); }
+    else if (tipo === "flerte") {
+        msgPlayer = "És a pessoa mais cativante que conheço...";
+        if (comprometido && Math.random() > 0.3) { resposta = `Olha, eu sou comprometido(a). Melhor evitarmos isso.`; afeto -= 15; } 
+        else { resposta = "Saber as palavras certas é o teu dom... 🥰"; afeto = Math.min(100, afeto + 15); }
     }
-    setPlayer(prev => ({ ...prev, hora: novaHora, dia: novoDia, dinheiro: novoDinheiro, energia: prev.godMode ? 100 : prev.energia - custoEnergia }));
-    return true;
+    atualizarNPC(npcAtivo.id, { afeto, historico: [...historico, { remetente: "player", texto: msgPlayer }, { remetente: "npc", texto: resposta }] });
   };
 
-  const dormir = () => {
-    const custoDiario = Math.round(15 * mundo[player.cidade_id].custo_vida);
-    setPlayer(prev => ({ ...prev, dia: prev.dia + 1, hora: 8, dinheiro: prev.godMode ? prev.dinheiro : prev.dinheiro - custoDiario, energia: 100, trabalhouHoje: false }));
-    alert("Um novo dia começou!");
-  };
-
-  if (telaAtual === "menuPrincipal") {
+  if (!npcAtivo) {
     return (
-      <div className="container" style={{ textAlign: 'center', marginTop: '10vh' }}>
-        <h1 style={{ fontSize: '3rem', color: '#007bff' }}>{t.tituloJogo}</h1>
-        <div className="acoes" style={{ flexDirection: 'column', maxWidth: '300px', margin: '40px auto', gap: '15px' }}>
-          <button style={{ padding: '20px' }} onClick={() => setTelaAtual("start")}>▶ {t.menuNovaVida}</button>
-          <button style={{ backgroundColor: '#28a745' }} onClick={carregarJogo}>💾 {t.menuCarregar}</button>
-          <button style={{ backgroundColor: '#555' }} onClick={() => setTelaAtual("criadorCidade")}>{t.criador}</button>
+      <div style={{padding: '10px', color: '#fff'}}>
+        <button onClick={voltarHome} style={{marginBottom: '15px', backgroundColor: 'transparent', border: '1px solid #38bdf8', color: '#38bdf8', padding: '5px 10px', cursor: 'pointer', borderRadius: '5px'}}>🔙 Home</button>
+        <h3 style={{margin: '0 0 15px 0', color: '#38bdf8'}}>💬 Mensagens</h3>
+        {contatosNPCs.length === 0 ? <p style={{color: '#64748b'}}>Nenhum contato salvo.</p> : (
+          <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+            {contatosNPCs.map(npc => (
+              <div key={npc.id} onClick={() => setNpcAtivoId(npc.id)} style={{backgroundColor: '#1e293b', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px'}}>
+                <div style={{width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#ececec', overflow: 'hidden'}}><div style={{transform: 'scale(1.7)', transformOrigin: 'top center'}}><Avatar player={npc} mundo={mundo}/></div></div>
+                <div style={{flex: 1}}><strong>{npc.nome}</strong><br/><span style={{fontSize: '11px', color: '#94a3b8'}}>{npc.profissao} | Afeto: {npc.afeto}%</span></div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (verPerfil) {
+    return (
+      <div style={{display: 'flex', flexDirection: 'column', height: '480px', color: '#fff', backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px'}}>
+        <button onClick={() => setVerPerfil(false)} style={{alignSelf: 'flex-start', backgroundColor: '#334155', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', marginBottom: '15px'}}>Fechar Perfil</button>
+        <div style={{width: '120px', height: '120px', borderRadius: '15px', overflow: 'hidden', margin: '0 auto 15px auto', backgroundColor: '#ececec', border: '3px solid #38bdf8'}}><div style={{transform: 'scale(1.5)', transformOrigin: 'top center', width: '100%', height: '100%'}}><Avatar player={npcAtivo} mundo={mundo} /></div></div>
+        <h2 style={{textAlign: 'center', margin: '0 0 5px 0'}}>{npcAtivo.nome}, {npcAtivo.idade}</h2>
+        <p style={{textAlign: 'center', margin: '0 0 20px 0', color: '#38bdf8', fontWeight: 'bold'}}>{npcAtivo.profissao}</p>
+        <div style={{backgroundColor: '#1e293b', padding: '15px', borderRadius: '10px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px'}}>
+          <p style={{margin: '0 0 10px 0', fontStyle: 'italic', borderBottom: '1px solid #334155', paddingBottom: '10px'}}>"{npcAtivo.bio}"</p>
+          <span><strong>Estado Civil:</strong> {npcAtivo.estadoCivil}</span>
+          <span><strong>Mora com você:</strong> {npcAtivo.mora_junto ? "Sim 💑" : "Não"}</span>
         </div>
       </div>
     );
   }
 
-  if (telaAtual === "start") return <Criacao player={player} setPlayer={setPlayer} mundo={mundo} t={t} iniciarJogo={() => setTelaAtual("distribuirAtributos")} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "distribuirAtributos") return <Atributos player={player} setPlayer={setPlayer} t={t} setTelaAtual={setTelaAtual} iniciarJogo={iniciarJogo} />;
-  if (telaAtual === "quarto") return <Quarto player={player} setPlayer={setPlayer} mundo={mundo} t={t} salvarJogo={salvarJogo} dormir={dormir} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "mapa") return <Mapa player={player} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "agenciaEmprego") return <Agencia player={player} setPlayer={setPlayer} mundo={mundo} t={t} profissoes={profissoes} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "criadorCidade") return <CriadorCidade mundo={mundo} setMundo={setMundo} t={t} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "aeroporto") return <Aeroporto player={player} setPlayer={setPlayer} mundo={mundo} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "lojaVeiculos") return <LojaVeiculos player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "imobiliaria") return <Imobiliaria player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "distritoComercial") return <DistritoComercial player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} />;
-  if (telaAtual === "distritoNoturno") return <DistritoNoturno player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} />;
-  if (telaAtual === "motel") return <Motel player={player} setPlayer={setPlayer} mundo={mundo} npc={parceiroMotel} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "contraceptivoDialog") return <ContraceptivoDialog player={player} setPlayer={setPlayer} npc={parceiroMotel} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "lojaRoupas") return <LojaRoupas player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
-  if (telaAtual === "prefeitura") return <Prefeitura player={player} setPlayer={setPlayer} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
-  if (telaAtual === "academia") return <Academia player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
-  if (telaAtual === "centroComercial") return <CentroComercial player={player} setPlayer={setPlayer} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
-  if (telaAtual === "celular") return <Celular player={player} setPlayer={setPlayer} mundo={mundo} t={t} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} setParceiroMotel={setParceiroMotel} />;
-  if (telaAtual === "trabalho") return <Trabalho player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
-  if (telaAtual === "restaurante") return <Restaurante player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
-  if (telaAtual === "banco") return <Banco player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} />;
-  return null;
-}
+  return (
+    <div style={{display: 'flex', flexDirection: 'column', height: '480px', color: '#fff'}}>
+      {agendarEncontro && <ModalEscolhaLugar player={player} npc={npcAtivo} setTelaAtual={setTelaAtual} setParceiroMotel={setParceiroMotel} onClose={() => setAgendarEncontro(false)} />}
 
-export default App;
+      <div style={{backgroundColor: '#1e293b', padding: '10px', display: 'flex', alignItems: 'center', gap: '15px', borderRadius: '8px 8px 0 0'}}>
+        <button onClick={() => setNpcAtivoId(null)} style={{backgroundColor: '#334155', color: '#fff', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer'}}>⬅</button>
+        <div onClick={() => setVerPerfil(true)} style={{width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#ececec', overflow: 'hidden', cursor: 'pointer', border: '2px solid #38bdf8'}}>
+          <div style={{transform: 'scale(1.7)', transformOrigin: 'top center'}}><Avatar player={npcAtivo} mundo={mundo}/></div>
+        </div>
+        <div style={{flex: 1}}><h4 style={{margin: 0, fontSize: '14px'}}>{npcAtivo.nome}</h4></div>
+        <span style={{color: '#ec4899', fontSize: '12px', fontWeight: 'bold'}}>❤️ {npcAtivo.afeto}%</span>
+      </div>
+      
+      <div style={{flex: 1, backgroundColor: '#0b1120', padding: '15px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px'}}>
+        {(npcAtivo.historico || []).map((msg, i) => (
+          <div key={i} style={{ alignSelf: msg.remetente === "player" ? 'flex-end' : 'flex-start', backgroundColor: msg.remetente === "player" ? '#059669' : '#334155', padding: '8px 12px', borderRadius: '15px', maxWidth: '80%', fontSize: '13px' }}>{msg.texto}</div>
+        ))}
+      </div>
+
+      <div style={{backgroundColor: '#1e293b', padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px'}}>
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px'}}>
+          <button onClick={() => interagir('trabalho')} style={btnTopico}>💼 Trabalho</button>
+          <button onClick={() => interagir('flerte')} style={{...btnTopico, color: '#fb7185'}}>😏 Charme</button>
+          <button onClick={() => setAgendarEncontro(true)} style={{...btnTopico, backgroundColor: '#ec4899', color: '#fff'}}>🌹 Sair</button>
+          {!npcAtivo.mora_junto && <button onClick={() => setDialogoRelacionamento('morar_junto')} style={{...btnTopico, backgroundColor: '#8b5cf6', color: '#fff'}}>🔑 Morar Junto</button>}
+        </div>
+
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px'}}>
+          {player.relacionamento?.parceiro?.npc_id !== npcAtivoId ? (
+            <button onClick={() => setDialogoRelacionamento('propor_namoro')} style={{...btnTopico, backgroundColor: '#ec4899', color: '#fff'}}>💕 Namoro</button>
+          ) : (
+            <button onClick={() => setDialogoRelacionamento('propor_casamento')} style={{...btnTopico, backgroundColor: '#d946ef', color: '#fff'}}>💍 Casar</button>
+          )}
+          <button onClick={() => setDialogoRelacionamento('conversa_gravidez')} style={{...btnTopico, backgroundColor: '#fb923c', color: '#fff'}}>🤰 Filhos / Gravidez</button>
+        </div>
+      </div>
+
+      {dialogoRelacionamento && (
+        <DialogoRelacionamento
+          npc={npcAtivo} player={player} setPlayer={setPlayer}
+          contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs}
+          tipo={dialogoRelacionamento} onClose={() => setDialogoRelacionamento(null)}
+        />
+      )}
+    </div>
+  );
+}
+const btnTopico = { backgroundColor: '#334155', color: '#cbd5e1', border: 'none', padding: '8px', borderRadius: '5px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' };

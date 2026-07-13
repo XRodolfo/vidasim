@@ -58,17 +58,35 @@ export default function Trabalho({ player, setPlayer, setTelaAtual, avancarTempo
   const pedirPromocao = () => {
     const rec = player.reconhecimento || 10;
     if (rec < 70) {
-      setMsg(`⚠️ O teu reconhecimento corporativo atual (${rec}%) é baixo. O teu supervisor exige pelo menos 70% para aprovar um aumento.`);
+      setMsg(`⚠️ O teu reconhecimento corporativo atual (${rec}%) é baixo. Exige-se pelo menos 70%.`);
       return;
     }
-    const novoSalario = Math.round((player.salario || 150) * 1.35);
+    
+    // Tratamento Inteligente de Títulos
+    let novoTitulo = player.tituloProfissao || "Funcionário";
+    let multiplicador = 1.35;
+
+    if (!novoTitulo.includes("Sênior") && !novoTitulo.includes("Diretor") && !novoTitulo.includes("CEO")) {
+        novoTitulo += " Sênior";
+    } else if (novoTitulo.includes("Sênior")) {
+        novoTitulo = novoTitulo.replace("Sênior", "Diretor");
+        multiplicador = 1.60;
+    } else if (novoTitulo.includes("Diretor")) {
+        novoTitulo = novoTitulo.replace("Diretor", "CEO");
+        multiplicador = 2.0;
+    } else {
+        setMsg("👑 Já alcançaste o topo da pirâmide corporativa (CEO)!");
+        return;
+    }
+
+    const novoSalario = Math.round((player.salario || 150) * multiplicador);
     setPlayer(prev => ({
       ...prev,
       salario: novoSalario,
-      reconhecimento: 30, // Reseta após a promoção
-      tituloProfissao: `${prev.tituloProfissao || "Funcionário"} Sênior`
+      reconhecimento: 20, // Reseta
+      tituloProfissao: novoTitulo
     }));
-    setMsg(`🎉 PROMOVIDO! O teu esforço foi reconhecido! O teu novo salário base é de R$ ${novoSalario}/turno!`);
+    setMsg(`🎉 PROMOVIDO PARA ${novoTitulo.toUpperCase()}! O teu novo salário base é de R$ ${novoSalario}/turno!`);
   };
 
   return (
