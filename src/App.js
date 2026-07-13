@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
 import { textos, mundoInicial, profissoes, eventos, modificadoresIdade } from './dados';
+import { inicializarDadosReproductivos } from './utils/reproductionSystem';
+import { inicializarRelacionamento } from './utils/relationshipSystem';
 
 import Criacao from './telas/Criacao';
 import Quarto from './telas/Quarto';
@@ -17,6 +19,8 @@ import Aeroporto from './telas/Aeroporto';
 import LojaVeiculos from './telas/LojaVeiculos';
 import Imobiliaria from './telas/Imobiliaria';
 import LojaRoupas from './telas/LojaRoupas';
+import ContraceptivoDialog from './componentes/ContraceptivoDialog';
+import { obterComotos, executarAtividade, calcularCorQualidade } from './utils/casasSystem';
 
 function App() {
   const [idioma, setIdioma] = useState("pt");
@@ -30,6 +34,7 @@ function App() {
   const [player, setPlayer] = useState({
     nome: "Alex", idade: 18, genero: "Mulher",
     orientacao: "Heterossexual", identidadeGenero: "Cisgênero", preferenciaBusca: "Homens",
+    periciaSexual: 15, // Começa baixo e vai evoluindo com a prática no motel
     cidade_origem: "SaoPaulo", cidade_id: "SaoPaulo", 
     altura: 165, peso: 60, cabelo: "Longos", corCabelo: "#2c1b18",
     seios: "Médios", penis: "Médio", bunda: "Redonda", seios_cm: 95, penis_cm: 14,
@@ -38,7 +43,11 @@ function App() {
     dinheiro: 1000, energia: 100, dia: 1, hora: 8, pontosDisponiveis: 30, 
     forca: 50, reflexo: 50, inteligencia: 50, carisma: 50, resistencia: 50,
     profissao_id: null, tituloProfissao: null, salario: 0, trabalhouHoje: false,
-    veiculos: [], propriedades: [] // Coleções Vazias de segurança
+    veiculos: [], propriedades: [],
+    dadosReproductivos: inicializarDadosReproductivos(),
+    inventario: { imoveis: [], veiculos: [], itens: [], dinheiro: 0 },
+    relacionamento: inicializarRelacionamento(),
+    casa: { tipo: "apartamento_simples", comodoAtual: "sala_simples" }
   });
 
   const salvarJogo = () => {
@@ -54,6 +63,7 @@ function App() {
       if (!dadosLoad.player.preferenciaBusca) dadosLoad.player.preferenciaBusca = "Homens";
       if (!dadosLoad.player.veiculos) dadosLoad.player.veiculos = [];
       if (!dadosLoad.player.propriedades) dadosLoad.player.propriedades = [];
+      if (!dadosLoad.player.periciaSexual) dadosLoad.player.periciaSexual = 15;
       setPlayer(dadosLoad.player); setMundo(dadosLoad.mundo); setContatosNPCs(dadosLoad.contatosNPCs || []);
       setTelaAtual("quarto"); alert(t.loadSucesso);
     } else { alert(t.loadErro); }
@@ -111,6 +121,7 @@ function App() {
   if (telaAtual === "imobiliaria") return <Imobiliaria player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} />;
   
   if (telaAtual === "motel") return <Motel player={player} setPlayer={setPlayer} mundo={mundo} npc={parceiroMotel} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
+  if (telaAtual === "contraceptivoDialog") return <ContraceptivoDialog player={player} setPlayer={setPlayer} npc={parceiroMotel} setTelaAtual={setTelaAtual} />;
   if (telaAtual === "lojaRoupas") return <LojaRoupas player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
   if (telaAtual === "prefeitura") return <Prefeitura player={player} setPlayer={setPlayer} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
   if (telaAtual === "academia") return <Academia player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;

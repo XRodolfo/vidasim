@@ -20,7 +20,7 @@ export default function ModalEscolhaLugar({ player, npc, setTelaAtual, setParcei
 
     if (local.id === 'motel') {
       setParceiroMotel(npc);
-      setTelaAtual("motel");
+      setTelaAtual("contraceptivoDialog");
     } else {
       // Encontros normais em locais públicos aumentam o afeto de forma drástica!
       npc.afeto = Math.min(100, npc.afeto + local.gasto);

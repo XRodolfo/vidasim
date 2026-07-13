@@ -1,25 +1,34 @@
 import React, { useState } from 'react';
+import { comprarVeiculo } from '../utils/inventorySystem';
 
 export default function LojaVeiculos({ player, setPlayer, setTelaAtual }) {
   const [msg, setMsg] = useState("Motores brilhando sob os refletores. Escolha sua máquina.");
   
   const carros = [
-    { id: 'scooter', nome: '🛵 Scooter Elétrica 125cc', preco: 4500, vel: 'Baixa' },
-    { id: 'sedan', nome: '🚗 Sedan Executivo Importado', preco: 48000, vel: 'Média' },
-    { id: 'esportivo', nome: '🏎️ Hiperesportivo V8 Turbo', preco: 250000, vel: 'Extrema' }
+    { id: 'scooter', nome: '🛵 Scooter Elétrica 125cc', preco: 4500, velocidade: 1.8 },
+    { id: 'sedan', nome: '🚗 Sedan Executivo Importado', preco: 48000, velocidade: 3.0 },
+    { id: 'esportivo', nome: '🏎️ Hiperesportivo V8 Turbo', preco: 250000, velocidade: 5.0 }
   ];
 
   const comprar = (c) => {
-    const frota = player.veiculos || [];
-    if (frota.includes(c.id)) { setMsg("Você já possui as chaves deste modelo!"); return; }
+    const veiculosExistentes = player.inventario?.veiculos || [];
+    if (veiculosExistentes.some(v => v.nome === c.nome)) { setMsg("Você já possui as chaves deste modelo!"); return; }
     if (player.dinheiro < c.preco) { setMsg("Saldo bancário insuficiente!"); return; }
 
-    setPlayer({
-      ...player,
-      dinheiro: player.dinheiro - c.preco,
-      veiculos: [...frota, c.id]
-    });
-    setMsg(`🎉 Parabéns! Comprou o ${c.nome}. Ele agora está na sua garagem.`);
+    const resultado = comprarVeiculo(player.inventario, c.id, player);
+    if (resultado.erro) {
+      setMsg(resultado.erro);
+    } else {
+      setPlayer(prev => ({
+        ...prev,
+        dinheiro: prev.dinheiro - resultado.dinheiroPago,
+        inventario: {
+          ...prev.inventario,
+          veiculos: [...(prev.inventario?.veiculos || []), resultado.veiculo]
+        }
+      }));
+      setMsg(`🎉 Parabéns! Comprou o ${c.nome}. Ele agora está na sua garagem.`);
+    }
   };
 
   return (

@@ -1,3 +1,6 @@
+// Importar cidades expandidas
+import { cidadesExpandidas, culturasExpandidas } from './cidades';
+
 // 1. DICIONÁRIO GLOBAL BILÍNGUE
 export const textos = {
   pt: {
@@ -6,7 +9,7 @@ export const textos = {
     tituloCriacao: "Criação de Personagem", nome: "Nome:", idade: "Idade:", genero: "Gênero Biológico:",
     homem: "Homem", mulher: "Mulher", origem: "Cidade de Origem (Etnia):", local: "Onde mora atualmente:",
     iniciar: "Iniciar Vida", criador: "🌍 Criador de Cidades", voltar: "Voltar",
-    quarto: "O Seu Quarto", descQuarto: "Este é o seu porto seguro. Planeje seu futuro, acesse o celular ou descanse.",
+    quarto: "Sua Casa", descQuarto: "Este é o seu porto seguro. Planeje seu futuro, acesse o celular ou descanse.",
     dormir: "Dormir (+8h | 100% Energia)", sairRua: "Sair para a Rua", telemovel: "📱 Celular",
     mapa: "Mapa de Metrópole", descMapa: "As ruas da cidade guardam oportunidades e perigos. Para onde quer ir?",
     voltarCasa: "Voltar para o Quarto", dia: "Dia", atributos: "Os Seus Atributos",
@@ -16,67 +19,106 @@ export const textos = {
     agencia: "💼 Agência de Empregos", academia: "🏋️ Academia", contatos: "👥 Lista de Contatos",
     baterPonto: "Trabalhar Turno (+4h)", treinarCorpo: "Treinar Pesado (-30⚡ | +4h)",
     gerarContato: "Buscar Novos Contatos nas Redes (-10⚡ | +1h)",
-    traços: "Traços Únicos", empresaStatus: "Suas Empresas / Investimentos"
+    traços: "Traços Únicos", empresaStatus: "Suas Empresas / Investimentos",
+    centroComercialTitulo: "🛍️ Centro Comercial Metrópolis",
+    lojaRoupasTitulo: "Boutique Fashion",
+    lojaVeiculosTitulo: "Concessionária HighDrive",
+    imobiliariaTitulo: "Imobiliária Global Home",
+    lojaGeralTitulo: "Loja de Conveniência",
+    voltarMapa: "Voltar para o Mapa",
+    distritoComercialTitulo: "Distrito Comercial & Corporativo",
+    prefeituraTitulo: "Prefeitura e Concursos",
+    delegaciaTitulo: "Delegacia de Polícia",
+    hospitalTitulo: "Hospital Central",
+    advocaciaTitulo: "Escritório de Advocacia",
+    escritoriosTitulo: "Prédio de Escritórios"
   },
   en: {
     tituloJogo: "Life Simulator: Genesis", menuNovaVida: "New Life", menuCarregar: "Load Game", criadoPor: "Created by", 
     tituloCriacao: "Character Creation", nome: "Name:", idade: "Age:", genero: "Biological Gender:", homem: "Male", mulher: "Female", 
     origem: "Birth City:", local: "Current City:", iniciar: "Start Life", criador: "🌍 City Creator", voltar: "Back", 
-    quarto: "Your Room", descQuarto: "This is your safe haven. Plan your future, check your phone or rest.", 
+    quarto: "Your Home", descQuarto: "This is your safe haven. Plan your future, check your phone or rest.", 
     dormir: "Sleep (+8h | 100% Energy)", sairRua: "Go Outside", telemovel: "📱 Cellphone", mapa: "Metropolis Map", 
     descMapa: "The city streets hold opportunities and dangers. Where to go?", voltarCasa: "Return Room", dia: "Day", 
     atributos: "Your Attributes", forca: "Strength", reflexo: "Reflex", inteligencia: "Intelligence", carisma: "Charisma", 
     resistencia: "Endurance", exaustao: "Total exhaustion! You need to sleep.", novoDia: "A new day begun! Cost of living was charged.", 
     saveSucesso: "Game saved successfully!", loadSucesso: "Game loaded!", loadErro: "No save game found.", 
     agencia: "💼 Job Agency", academia: "🏋️ Gym", contatos: "👥 Contact List", baterPonto: "Work Shift (+4h)", 
-    treinarCorpo: "Workout Hard (-30⚡ | +4h)", gerarContato: "Find New Contacts (-10⚡ | +1h)"
+    treinarCorpo: "Workout Hard (-30⚡ | +4h)", gerarContato: "Find New Contacts (-10⚡ | +1h)",
+    centroComercialTitulo: "🛍️ Metropolis Shopping Center",
+    lojaRoupasTitulo: "Fashion Boutique",
+    lojaVeiculosTitulo: "HighDrive Dealership",
+    imobiliariaTitulo: "Global Home Real Estate",
+    lojaGeralTitulo: "Convenience Store",
+    voltarMapa: "Back to Map",
+    distritoComercialTitulo: "Commercial & Corporate District",
+    prefeituraTitulo: "City Hall and Public Exams",
+    delegaciaTitulo: "Police Station",
+    hospitalTitulo: "Central Hospital",
+    advocaciaTitulo: "Law Office",
+    escritoriosTitulo: "Office Building"
   }
 };
 
-// 2. MUNDO BASE
-export const mundoInicial = {
-  "SaoPaulo": { nome: "São Paulo", pais: "Brasil", custo_vida: 1.5, etnia: "Latina" },
-  "Tokyo": { nome: "Tóquio", pais: "Japão", custo_vida: 2.0, etnia: "Asiática" },
-  "Lagos": { nome: "Lagos", pais: "Nigéria", custo_vida: 1.2, etnia: "Negra" },
-  "Oslo": { nome: "Oslo", pais: "Noruega", custo_vida: 2.8, etnia: "Branca" }
-};
+// 2. MUNDO BASE - Importado de cidades.js
+export const mundoInicial = cidadesExpandidas;
 
-// 3. PROFISSÕES
+// 3. PROFISSÕES EXPANDIDAS - Carreira + Atributos
 export const profissoes = [
-  { id: "TI", nome: "Programador Júnior", salario: 150, horas: 4, energia: 20, reqAttr: "inteligencia", reqMin: 40 },
-  { id: "Mecanico", nome: "Mecânico", salario: 110, horas: 6, reqAttr: "forca", reqMin: 30 },
-  { id: "Segurança", nome: "Segurança Noturno", salario: 120, horas: 4, energia: 35, reqAttr: "forca", reqMin: 45 },
-  { id: "Vendas", nome: "Promotor de Vendas", salario: 130, horas: 4, energia: 25, reqAttr: "carisma", reqMin: 40 }
+  // === INTELIGÊNCIA ===
+  { id: "prog_junior", nome: "Programador Júnior", salario: 150, horas: 4, energia: 20, reqAttr: "inteligencia", reqMin: 40, nivel: "junior" },
+  { id: "prog_pleno", nome: "Programador Pleno", salario: 250, horas: 4, energia: 15, reqAttr: "inteligencia", reqMin: 60, nivel: "pleno" },
+  { id: "prog_senior", nome: "Desenvolvedor Sênior", salario: 400, horas: 4, energia: 10, reqAttr: "inteligencia", reqMin: 80, nivel: "senior" },
+  { id: "analista", nome: "Analista de Sistemas", salario: 200, horas: 4, energia: 18, reqAttr: "inteligencia", reqMin: 50, nivel: "pleno" },
+  { id: "cientista", nome: "Cientista de Dados", salario: 300, horas: 4, energia: 20, reqAttr: "inteligencia", reqMin: 70, nivel: "senior" },
+  { id: "professor", nome: "Professor Universitário", salario: 180, horas: 5, energia: 15, reqAttr: "inteligencia", reqMin: 60, nivel: "pleno" },
+  { id: "pesquisador", nome: "Pesquisador", salario: 220, horas: 6, energia: 25, reqAttr: "inteligencia", reqMin: 65, nivel: "senior" },
+
+  // === FORÇA ===
+  { id: "mecanico", nome: "Mecânico", salario: 110, horas: 6, energia: 30, reqAttr: "forca", reqMin: 30, nivel: "junior" },
+  { id: "mecanico_senior", nome: "Mecânico Especialista", salario: 200, horas: 5, energia: 25, reqAttr: "forca", reqMin: 50, nivel: "senior" },
+  { id: "soldador", nome: "Soldador", salario: 140, horas: 6, energia: 35, reqAttr: "forca", reqMin: 45, nivel: "pleno" },
+  { id: "construtor", nome: "Construtor Civil", salario: 130, horas: 8, energia: 40, reqAttr: "forca", reqMin: 35, nivel: "pleno" },
+  { id: "carpinteiro", nome: "Carpinteiro", salario: 120, horas: 6, energia: 30, reqAttr: "forca", reqMin: 40, nivel: "pleno" },
+  { id: "movedor", nome: "Movedor de Cargas", salario: 85, horas: 6, energia: 45, reqAttr: "forca", reqMin: 25, nivel: "junior" },
+  { id: "lutador", nome: "Lutador Profissional", salario: 500, horas: 3, energia: 50, reqAttr: "forca", reqMin: 75, nivel: "senior" },
+
+  // === CARISMA ===
+  { id: "vendas_junior", nome: "Vendedor Júnior", salario: 100, horas: 4, energia: 20, reqAttr: "carisma", reqMin: 30, nivel: "junior" },
+  { id: "vendas_senior", nome: "Gerente de Vendas", salario: 250, horas: 4, energia: 15, reqAttr: "carisma", reqMin: 60, nivel: "senior" },
+  { id: "ator", nome: "Ator/Atriz", salario: 400, horas: 3, energia: 25, reqAttr: "carisma", reqMin: 70, nivel: "senior" },
+  { id: "modelo", nome: "Modelo Profissional", salario: 350, horas: 2, energia: 20, reqAttr: "carisma", reqMin: 65, nivel: "senior" },
+  { id: "animador", nome: "Animador de Eventos", salario: 150, horas: 4, energia: 30, reqAttr: "carisma", reqMin: 45, nivel: "pleno" },
+  { id: "atendente", nome: "Atendente de Loja", salario: 90, horas: 4, energia: 25, reqAttr: "carisma", reqMin: 25, nivel: "junior" },
+  { id: "consultor", nome: "Consultor de Negócios", salario: 300, horas: 4, energia: 15, reqAttr: "carisma", reqMin: 55, nivel: "senior" },
+  { id: "influencer", nome: "Influenciador Digital", salario: 450, horas: 2, energia: 15, reqAttr: "carisma", reqMin: 70, nivel: "senior" },
+  { id: "policia", nome: "Policial", salario: 130, horas: 6, energia: 35, reqAttr: "carisma", reqMin: 40, nivel: "pleno" },
+
+  // === REFLEXO ===
+  { id: "piloto", nome: "Piloto de Fórmula", salario: 600, horas: 3, energia: 40, reqAttr: "reflexo", reqMin: 75, nivel: "senior" },
+  { id: "cirurgiao", nome: "Cirurgião", salario: 350, horas: 5, energia: 35, reqAttr: "reflexo", reqMin: 70, nivel: "senior" },
+  { id: "dentista", nome: "Dentista", salario: 250, horas: 4, energia: 20, reqAttr: "reflexo", reqMin: 55, nivel: "pleno" },
+  { id: "archer", nome: "Atleta Olímpico", salario: 500, horas: 3, energia: 45, reqAttr: "reflexo", reqMin: 75, nivel: "senior" },
+  { id: "segurador", nome: "Segurador Profissional", salario: 200, horas: 4, energia: 25, reqAttr: "reflexo", reqMin: 50, nivel: "pleno" },
+  { id: "jogador_esports", nome: "Jogador de eSports", salario: 400, horas: 4, energia: 30, reqAttr: "reflexo", reqMin: 70, nivel: "senior" },
+
+  // === RESISTÊNCIA ===
+  { id: "seguranca", nome: "Segurança Noturno", salario: 120, horas: 4, energia: 35, reqAttr: "forca", reqMin: 45, nivel: "pleno" },
+  { id: "maratonista", nome: "Maratonista Profissional", salario: 300, horas: 2, energia: 50, reqAttr: "resistencia", reqMin: 70, nivel: "senior" },
+  { id: "bombeiro", nome: "Bombeiro", salario: 160, horas: 6, energia: 40, reqAttr: "resistencia", reqMin: 55, nivel: "pleno" },
+  { id: "enfermeiro", nome: "Enfermeiro", salario: 140, horas: 6, energia: 30, reqAttr: "resistencia", reqMin: 45, nivel: "pleno" },
+  { id: "militar", nome: "Militar", salario: 180, horas: 8, energia: 45, reqAttr: "resistencia", reqMin: 60, nivel: "pleno" },
+
+  // === MISTA ===
+  { id: "designer", nome: "Designer Gráfico", salario: 200, horas: 4, energia: 20, reqAttr: "inteligencia", reqMin: 45, attrSecundario: "carisma", nivel: "pleno" },
+  { id: "jornalista", nome: "Jornalista", salario: 220, horas: 5, energia: 20, reqAttr: "inteligencia", reqMin: 50, attrSecundario: "carisma", nivel: "pleno" },
+  { id: "advogado", nome: "Advogado", salario: 350, horas: 5, energia: 25, reqAttr: "inteligencia", reqMin: 65, attrSecundario: "carisma", nivel: "senior" },
+  { id: "medico", nome: "Médico", salario: 400, horas: 6, energia: 35, reqAttr: "inteligencia", reqMin: 75, attrSecundario: "reflexo", nivel: "senior" },
+  { id: "chef", nome: "Chef de Cozinha", salario: 250, horas: 5, energia: 30, reqAttr: "inteligencia", reqMin: 55, attrSecundario: "carisma", nivel: "senior" }
 ];
 
-//4 - Nomes e Sobrenomes
-export const culturas = {
-  Latina: {
-    nomesHomens: ["Carlos", "Miguel", "João", "Pedro", "Lucas", "Mateus", "Gabriel", "Rafael"],
-    nomesMulheres: ["Ana", "Maria", "Julia", "Sofia", "Camila", "Mariana", "Beatriz", "Larissa"],
-    sobrenomes: ["Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves"]
-  },
-  Asiática: {
-    nomesHomens: ["Hiroshi", "Kenji", "Ren", "Sora", "Haruto", "Yuto", "Akira"],
-    nomesMulheres: ["Yuki", "Sakura", "Hina", "Aoi", "Rin", "Mei", "Mio"],
-    sobrenomes: ["Sato", "Suzuki", "Takahashi", "Tanaka", "Watanabe", "Ito", "Nakamura"]
-  },
-  Negra: {
-    nomesHomens: ["Kwame", "Tariq", "Malik", "Jamal", "Kofi", "DeAndre", "Terrence"],
-    nomesMulheres: ["Amina", "Zuri", "Nia", "Aisha", "Keisha", "Imani", "Jada"],
-    sobrenomes: ["Okafor", "Mensah", "Diallo", "Washington", "Jefferson", "Jackson"]
-  },
-  Mista: {
-    nomesHomens: ["Alex", "Jordan", "Taylor", "Ryan", "Chris", "Sam", "Tyler"],
-    nomesMulheres: ["Alex", "Jordan", "Taylor", "Riley", "Casey", "Morgan", "Sam"],
-    sobrenomes: ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis"]
-  },
-  Branca: {
-    nomesHomens: ["Liam", "Noah", "Oliver", "Elijah", "William", "James", "Benjamin"],
-    nomesMulheres: ["Emma", "Olivia", "Ava", "Isabella", "Sophia", "Mia", "Charlotte"],
-    sobrenomes: ["Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer"]
-  }
-};
+//4 - Nomes e Sobrenomes (Expandido de cidades.js)
+export const culturas = culturasExpandidas;
 // 1. Catálogo de Veículos
 export const veiculos = {
   bicicleta: { nome: "Bicicleta Usada", preco: 200, velocidade: 1.2 },

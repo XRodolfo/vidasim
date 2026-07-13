@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Avatar from '../Avatar';
 import ModalEscolhaLugar from './ModalEscolhaLugar';
+import DialogoRelacionamento from '../DialogoRelacionamento';
 
-export default function AppChat({ player, mundo, contatosNPCs, setContatosNPCs, avancarTempo, setParceiroMotel, setTelaAtual, voltarHome }) {
+export default function AppChat({ player, setPlayer, mundo, contatosNPCs, setContatosNPCs, avancarTempo, setParceiroMotel, setTelaAtual, voltarHome }) {
   const [npcAtivoId, setNpcAtivoId] = useState(null);
   const [verPerfil, setVerPerfil] = useState(false);
-  const [agendarEncontro, setAgendarEncontro] = useState(false); // Gatilho do novo Modal
+  const [agendarEncontro, setAgendarEncontro] = useState(false);
+  const [dialogoRelacionamento, setDialogoRelacionamento] = useState(null);
 
   const npcAtivo = contatosNPCs.find(npc => npc.id === npcAtivoId);
 
@@ -115,9 +117,57 @@ export default function AppChat({ player, mundo, contatosNPCs, setContatosNPCs, 
           <button onClick={() => interagir('trabalho')} style={btnTopico}>💼 Trabalho</button>
           <button onClick={() => interagir('hobbies')} style={btnTopico}>🎮 Hobbies</button>
           <button onClick={() => interagir('flerte')} style={{...btnTopico, color: '#fb7185'}}>😏 Charme</button>
-          <button onClick={() => setAgendarEncontro(true)} style={{...btnTopico, backgroundColor: '#ec4899', color: '#fff'}}>🌹 Convidar p/ Sair</button>
+          <button onClick={() => setAgendarEncontro(true)} style={{...btnTopico, backgroundColor: '#ec4899', color: '#fff'}}>🌹 Sair</button>
+        </div>
+
+        {/* Botões de Relacionamento */}
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px'}}>
+          {player.relacionamento?.parceiro?.npc_id !== npcAtivoId ? (
+            <>
+              <button 
+                onClick={() => setDialogoRelacionamento('propor_namoro')}
+                disabled={npcAtivo.afeto < 75}
+                style={{...btnTopico, backgroundColor: npcAtivo.afeto >= 75 ? '#ec4899' : '#4b5563', opacity: npcAtivo.afeto >= 75 ? 1 : 0.5, cursor: npcAtivo.afeto >= 75 ? 'pointer' : 'not-allowed', color: '#fff'}}
+              >
+                💕 Namoro
+              </button>
+              <button 
+                onClick={() => setDialogoRelacionamento('conversa_gravidez')}
+                disabled={npcAtivo.afeto < 60}
+                style={{...btnTopico, backgroundColor: npcAtivo.afeto >= 60 ? '#fb923c' : '#4b5563', opacity: npcAtivo.afeto >= 60 ? 1 : 0.5, cursor: npcAtivo.afeto >= 60 ? 'pointer' : 'not-allowed', color: '#fff'}}
+              >
+                🤰 Filhos
+              </button>
+            </>
+          ) : (
+            <>
+              <button 
+                onClick={() => setDialogoRelacionamento('propor_casamento')}
+                style={{...btnTopico, backgroundColor: '#d946ef', color: '#fff'}}
+              >
+                💍 Casar
+              </button>
+              <button 
+                onClick={() => setDialogoRelacionamento('conversa_gravidez')}
+                style={{...btnTopico, backgroundColor: '#fb923c', color: '#fff'}}
+              >
+                🤰 Filhos
+              </button>
+            </>
+          )}
         </div>
       </div>
+
+      {dialogoRelacionamento && (
+        <DialogoRelacionamento
+          npc={npcAtivo}
+          player={player}
+          setPlayer={setPlayer}
+          relacionamento={player.relacionamento}
+          tipo={dialogoRelacionamento}
+          onClose={() => setDialogoRelacionamento(null)}
+        />
+      )}
     </div>
   );
 }

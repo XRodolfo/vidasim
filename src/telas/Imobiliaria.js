@@ -1,25 +1,34 @@
 import React, { useState } from 'react';
+import { comprarImovel } from '../utils/inventorySystem';
 
 export default function Imobiliaria({ player, setPlayer, setTelaAtual }) {
   const [msg, setMsg] = useState("Invista no seu teto. Deixe de pagar aluguel.");
 
   const imoveis = [
-    { id: 'kitnet', nome: '🏢 Loft Studio Centro', preco: 65000, luxo: 'Simples' },
-    { id: 'casa', nome: '🏡 Casa em Condomínio Fechado', preco: 180000, luxo: 'Alto' },
-    { id: 'mansao', nome: '🏰 Mansão Vista Mar Premium', preco: 850000, luxo: 'Extremo' }
+    { id: 'kitnet', nome: '🏢 Loft Studio Centro', preco: 65000, qualidade: 2, tipo: 'apartamento_simples' },
+    { id: 'casa', nome: '🏡 Casa em Condomínio Fechado', preco: 180000, qualidade: 4, tipo: 'sobrado' },
+    { id: 'mansao', nome: '🏰 Mansão Vista Mar Premium', preco: 850000, qualidade: 5, tipo: 'mansao' }
   ];
 
   const comprar = (i) => {
-    const casas = player.propriedades || [];
-    if (casas.includes(i.id)) { setMsg("Este imóvel já consta em suas escrituras imobiliárias!"); return; }
+    const imoveisExistentes = player.inventario?.imoveis || [];
+    if (imoveisExistentes.some(im => im.nome === i.nome)) { setMsg("Este imóvel já consta em suas escrituras imobiliárias!"); return; }
     if (player.dinheiro < i.preco) { setMsg("Crédito negado por fundos insuficientes."); return; }
 
-    setPlayer({
-      ...player,
-      dinheiro: player.dinheiro - i.preco,
-      propriedades: [...casas, i.id]
-    });
-    setMsg(`🎉 Escritura assinada! Você é o dono oficial de: ${i.nome}.`);
+    const resultado = comprarImovel(player.inventario, i.tipo, player);
+    if (resultado.erro) {
+      setMsg(resultado.erro);
+    } else {
+      setPlayer(prev => ({
+        ...prev,
+        dinheiro: prev.dinheiro - resultado.dinheiroPago,
+        inventario: {
+          ...prev.inventario,
+          imoveis: [...(prev.inventario?.imoveis || []), resultado.imovel]
+        }
+      }));
+      setMsg(`🎉 Escritura assinada! Você é o dono oficial de: ${i.nome}.`);
+    }
   };
 
   return (
