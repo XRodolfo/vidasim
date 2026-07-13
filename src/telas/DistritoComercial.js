@@ -1,25 +1,99 @@
-import React from 'react';
-import HUD from '../componentes/HUD';
+import React, { useState } from 'react';
 
-export default function DistritoComercial({ player, mundo, t, setTelaAtual }) {
+export default function DistritoComercial({ player = {}, setPlayer, setTelaAtual, avancarTempo }) {
+  const [aba, setAba] = useState('servicos');
+
+  const usarHospital = (tipo, preco, ganhoSaude) => {
+    if ((player.dinheiro || 0) < preco) {
+      alert("Sem fundos para cobrir as despesas médicas!");
+      return;
+    }
+    setPlayer(prev => ({
+      ...prev,
+      dinheiro: prev.dinheiro - preco,
+      saude: Math.min(100, (prev.saude || 50) + ganhoSaude)
+    }));
+    if (avancarTempo) avancarTempo(2, 10);
+    alert("Tratamento concluído. A tua saúde foi restaurada!");
+  };
+
+  const trabalharCorporativo = (cargo, reqInteligencia, salario, tempoMin, energiaGasta) => {
+    if ((player.inteligencia || 10) < reqInteligencia) {
+      alert(`O teu nível de Inteligência (${player.inteligencia || 10}) não atende ao requisito mínimo (${reqInteligencia}) para este cargo.`);
+      return;
+    }
+    if ((player.energia || 100) < energiaGasta) {
+      alert("Estás exausto! Não aguentarias a pressão de um escritório agora.");
+      return;
+    }
+    setPlayer(prev => ({
+      ...prev,
+      dinheiro: (prev.dinheiro || 0) + salario,
+      energia: prev.energia - energiaGasta,
+      inteligencia: Math.min(100, (prev.inteligencia || 50) + 1)
+    }));
+    if (avancarTempo) avancarTempo(tempoMin / 60, energiaGasta);
+    alert(`Concluíste o trabalho como ${cargo}! Recebeste R$ ${salario}.`);
+  };
+
   return (
-    <div className="container">
-      <HUD player={player} mundo={mundo} t={t} />
-      <div className="card" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
-        <h2 style={{ color: '#fff', marginBottom: '20px' }}>🏢 {t.distritoComercialTitulo || "Distrito Comercial"}</h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-          <button onClick={() => setTelaAtual("prefeitura")} style={{ ...btnU, backgroundColor: '#2980b9' }}>🏛️ {t.prefeituraTitulo || "Prefeitura e Concursos"}</button>
-          <button onClick={() => setTelaAtual("delegacia")} style={{ ...btnU, backgroundColor: '#c0392b' }}>🚓 {t.delegaciaTitulo || "Delegacia de Polícia"}</button>
-          <button onClick={() => setTelaAtual("hospital")} style={{ ...btnU, backgroundColor: '#27ae60' }}>🏥 {t.hospitalTitulo || "Hospital Central"}</button>
-          <button onClick={() => setTelaAtual("advocacia")} style={{ ...btnU, backgroundColor: '#8e44ad' }}>⚖️ {t.advocaciaTitulo || "Escritório de Advocacia"}</button>
-          <button onClick={() => setTelaAtual("escritorios")} style={{ ...btnU, backgroundColor: '#f1c40f' }}>🏢 {t.escritoriosTitulo || "Prédio de Escritórios"}</button>
-        </div>
-
-        <button onClick={() => setTelaAtual("mapa")} style={{ width: '100%', padding: '15px', backgroundColor: '#ef4444', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 'bold', marginTop: '20px', cursor: 'pointer' }}>{t.voltarMapa || "Voltar para o Mapa"}</button>
+    <div style={{ padding: '20px', maxWidth: '650px', margin: '0 auto', backgroundColor: '#1e272e', color: '#fff', borderRadius: '10px' }}>
+      <h2>🏛️ Distrito Comercial & Centro Cívico</h2>
+      <p style={{ color: '#2ed573' }}>Carteira: ${player.dinheiro || 0}</p>
+      
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '1px solid #555', paddingBottom: '10px' }}>
+        <button onClick={() => setAba('servicos')} style={aba === 'servicos' ? abaAtiva : abaInativa}>🏥 Serviços & Saúde</button>
+        <button onClick={() => setAba('escritorios')} style={aba === 'escritorios' ? abaAtiva : abaInativa}>🏢 Empregos Corporativos</button>
       </div>
+
+      {aba === 'servicos' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div style={boxServico}>
+            <h3>🏥 Hospital Central</h3>
+            <p>Cuida do teu corpo e previne doenças.</p>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+              <button onClick={() => usarHospital('Consulta de Rotina', 150, 25)} style={btnAcao}>Consulta (R$ 150 / +25 Saúde)</button>
+              <button onClick={() => usarHospital('Tratamento Intensivo', 500, 70)} style={btnAcao}>Tratamento (R$ 500 / +70 Saúde)</button>
+            </div>
+          </div>
+
+          <div style={boxServico}>
+            <h3>🏛️ Prefeitura & Registro Civil</h3>
+            <p>Acede aos serviços governamentais e concursos públicos.</p>
+            <button onClick={() => setTelaAtual('prefeitura')} style={{ ...btnAcao, backgroundColor: '#2980b9' }}>
+              Entrar na Prefeitura
+            </button>
+          </div>
+        </div>
+      )}
+
+      {aba === 'escritorios' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <p>O centro financeiro exige alta **Inteligência**:</p>
+          <div style={cardEmprego}>
+            <div><h4>Estagiário de Contabilidade</h4><small>Requer: 20 Inteligência | Turno: 6 horas</small></div>
+            <button onClick={() => trabalharCorporativo('Estagiário de Contabilidade', 20, 180, 360, 40)} style={btnAcao}>Trabalhar (R$ 180)</button>
+          </div>
+          <div style={cardEmprego}>
+            <div><h4>Analista Financeiro Júnior</h4><small>Requer: 45 Inteligência | Turno: 8 horas</small></div>
+            <button onClick={() => trabalharCorporativo('Analista Financeiro', 45, 450, 480, 55)} style={btnAcao}>Trabalhar (R$ 450)</button>
+          </div>
+          <div style={cardEmprego}>
+            <div><h4>Gestor Executivo de Projetos</h4><small>Requer: 75 Inteligência | Turno: 8 horas</small></div>
+            <button onClick={() => trabalharCorporativo('Gestor Executivo', 75, 1100, 480, 65)} style={btnAcao}>Trabalhar (R$ 1.100)</button>
+          </div>
+        </div>
+      )}
+
+      <button onClick={() => setTelaAtual('mapa')} style={{ marginTop: '25px', padding: '12px 20px', backgroundColor: '#e74c3c', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', width: '100%', fontWeight: 'bold' }}>
+        ⬅️ Voltar ao Mapa da Cidade
+      </button>
     </div>
   );
 }
 
-const btnU = { border: 'none', padding: '18px', borderRadius: '8px', color: '#fff', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', backgroundColor: '#1e293b' };
+const abaAtiva = { padding: '10px', backgroundColor: '#2e86de', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' };
+const abaInativa = { padding: '10px', backgroundColor: '#353b48', color: '#ccc', border: 'none', borderRadius: '5px', cursor: 'pointer' };
+const boxServico = { backgroundColor: '#2f3640', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #54a0ff' };
+const cardEmprego = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#2f3640', padding: '15px', borderRadius: '8px', border: '1px solid #444' };
+const btnAcao = { padding: '10px 15px', backgroundColor: '#27ae60', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' };

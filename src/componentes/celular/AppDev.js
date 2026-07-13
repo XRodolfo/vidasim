@@ -11,7 +11,7 @@ export default function AppDev({ player, setPlayer, contatosNPCs, setContatosNPC
           ...player, 
           godMode: true, dinheiro: 9999999, 
           forca: 100, inteligencia: 100, carisma: 100, reflexo: 100, resistencia: 100, 
-          energia: 100, periciaSexual: 100 // Preenche tudo no máximo!
+          energia: 100, periciaSexual: 100
         });
         alert("⚡ MODO DEUS ATIVADO ⚡\nFicha técnica e perícia íntima maximizadas.");
       } else {
@@ -32,7 +32,7 @@ export default function AppDev({ player, setPlayer, contatosNPCs, setContatosNPC
       <button onClick={voltarHome} style={{marginBottom: '15px', backgroundColor: 'transparent', border: '1px solid #38bdf8', color: '#38bdf8', padding: '5px 10px', cursor: 'pointer', borderRadius: '4px'}}>🔙 Home</button>
       
       <div style={{backgroundColor: '#000', padding: '15px', borderRadius: '8px', border: '1px solid #33f', fontFamily: 'monospace', color: '#33f', fontSize: '12px'}}>
-        <h3 style={{margin: '0 0 15px 0'}}>// DEV_CONSOLE</h3>
+        <h3 style={{margin: '0 0 15px 0'}}>{"// DEV_CONSOLE"}</h3>
         
         {!cheatLiberado ? (
           <div>
@@ -43,14 +43,14 @@ export default function AppDev({ player, setPlayer, contatosNPCs, setContatosNPC
           <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
             {player.godMode && <div style={{backgroundColor: '#fff', color: '#000', padding: '5px', textAlign: 'center', fontWeight: 'bold'}}>⚡ MODO DEUS CONECTADO ⚡</div>}
             
-            <h4 style={{borderBottom: '1px solid #33f', margin: '10px 0 5px 0'}}>// MODIFICAR VOCÊ</h4>
+            <h4 style={{borderBottom: '1px solid #33f', margin: '10px 0 5px 0'}}>{"// MODIFICAR VOCÊ"}</h4>
             <label>Dinheiro ($)</label> 
             <input type="number" value={player.dinheiro} onChange={e => setPlayer({...player, dinheiro: parseInt(e.target.value) || 0})} style={{backgroundColor: '#111', color: '#33f', padding: '5px', border: '1px solid #33f'}}/>
             
             <label>🔥 Perícia Sexual ({player.periciaSexual || 15})</label>
             <input type="range" min="1" max="100" value={player.periciaSexual || 15} onChange={e => setPlayer({...player, periciaSexual: parseInt(e.target.value)})} style={{width: '100%'}} />
 
-            <h4 style={{borderBottom: '1px solid #33f', margin: '10px 0 5px 0'}}>// COMPORTAMENTO DOS NPCs</h4>
+            <h4 style={{borderBottom: '1px solid #33f', margin: '10px 0 5px 0'}}>{"// COMPORTAMENTO DOS NPCs"}</h4>
             {contatosNPCs.length === 0 ? <span style={{color: '#666'}}>Sem contatos salvos na memória.</span> : contatosNPCs.map(npc => (
               <div key={npc.id} style={{backgroundColor: '#111', padding: '8px', borderLeft: '2px solid #33f', marginBottom: '8px'}}>
                 <strong style={{color: '#fff'}}>{npc.nome}</strong><br/>

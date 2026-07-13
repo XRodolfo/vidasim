@@ -4,12 +4,10 @@
 export const comotosImovel = {
   apartamento_simples: {
     tipo: "apartamento_simples",
+    maxQuartosExtras: 0,
     comotos: [
       {
-        id: "sala_simples",
-        nome: "Sala",
-        emoji: "🛋️",
-        descricao: "Um pequeno espaço de convivência",
+        id: "sala_simples", nome: "Sala", emoji: "🛋️", descricao: "Um pequeno espaço de convivência",
         atividades: [
           { id: "descansar", nome: "Descansar", emoji: "😴", efeito: { energia: 25 }, tempo: 1 },
           { id: "tv", nome: "Assistir TV", emoji: "📺", efeito: { energia: 20, carisma: 5 }, tempo: 2 }
@@ -17,199 +15,84 @@ export const comotosImovel = {
       }
     ]
   },
-  apartamento_moderno: {
-    tipo: "apartamento_moderno",
-    comotos: [
-      {
-        id: "sala_moderna",
-        nome: "Sala",
-        emoji: "🛋️",
-        descricao: "Sala moderna com varanda",
-        atividades: [
-          { id: "descansar", nome: "Descansar", emoji: "😴", efeito: { energia: 30 }, tempo: 1 },
-          { id: "tv", nome: "Assistir TV", emoji: "📺", efeito: { energia: 25, carisma: 8 }, tempo: 2 },
-          { id: "vitrola", nome: "Ouvir Música", emoji: "🎵", efeito: { energia: 20 }, tempo: 1 }
-        ]
-      },
-      {
-        id: "quarto_moderno",
-        nome: "Quarto",
-        emoji: "🛏️",
-        descricao: "Quarto confortável e bem decorado",
-        atividades: [
-          { id: "dormir", nome: "Dormir (+8h)", emoji: "😴", efeito: { energia: 100 }, tempo: 8 },
-          { id: "descansar_cama", nome: "Descansar na Cama", emoji: "🛏️", efeito: { energia: 40 }, tempo: 2 }
-        ]
-      }
-    ]
-  },
   casa_pequena: {
     tipo: "casa_pequena",
+    maxQuartosExtras: 2, // Pode construir 2 quartos para Harém
     comotos: [
       {
-        id: "sala_pequena",
-        nome: "Sala",
-        emoji: "🛋️",
-        descricao: "Sala aconchegante",
-        atividades: [
-          { id: "descansar", nome: "Descansar", emoji: "😴", efeito: { energia: 35 }, tempo: 1 },
-          { id: "tv", nome: "Assistir TV", emoji: "📺", efeito: { energia: 30, carisma: 10 }, tempo: 2 },
-          { id: "vitrola", nome: "Ouvir Música", emoji: "🎵", efeito: { energia: 25 }, tempo: 1 }
-        ]
+        id: "sala_pequena", nome: "Sala", emoji: "🛋️", descricao: "Sala aconchegante",
+        atividades: [{ id: "descansar", nome: "Descansar", emoji: "😴", efeito: { energia: 35 }, tempo: 1 }]
       },
       {
-        id: "quarto_pequeno",
-        nome: "Quarto",
-        emoji: "🛏️",
-        descricao: "Quarto principal",
+        id: "cozinha_pequena", nome: "Cozinha", emoji: "🍳", descricao: "Cozinha funcional",
         atividades: [
-          { id: "dormir", nome: "Dormir (+8h)", emoji: "😴", efeito: { energia: 100 }, tempo: 8 },
-          { id: "descansar_cama", nome: "Descansar na Cama", emoji: "🛏️", efeito: { energia: 45 }, tempo: 2 },
-          { id: "intimidade", nome: "Atividades Íntimas", emoji: "💑", efeito: { carisma: 15, resistencia: 10 }, tempo: 2 }
-        ]
-      },
-      {
-        id: "cozinha_pequena",
-        nome: "Cozinha",
-        emoji: "🍳",
-        descricao: "Cozinha funcional",
-        atividades: [
-          { id: "cozinhar", nome: "Cozinhar", emoji: "👨‍🍳", efeito: { energia: -10, carisma: 5 }, tempo: 1 },
-          { id: "comer", nome: "Comer", emoji: "🍽️", efeito: { energia: 40 }, tempo: 1 }
-        ]
-      },
-      {
-        id: "banheiro_pequeno",
-        nome: "Banheiro",
-        emoji: "🚿",
-        descricao: "Banheiro básico",
-        atividades: [
-          { id: "banho", nome: "Tomar Banho", emoji: "🚿", efeito: { energia: 20, carisma: 5 }, tempo: 1 },
-          { id: "higiene", nome: "Higiêne Pessoal", emoji: "🧴", efeito: { carisma: 10 }, tempo: 1 }
+          { id: "cozinhar", nome: "Treinar Culinária", emoji: "👨‍🍳", efeito: { energia: -10, culinaria: 3 }, tempo: 1 },
+          { id: "comer", nome: "Fazer Refeição", emoji: "🍽️", efeito: { energia: 45 }, tempo: 1 }
         ]
       }
     ]
   },
   casa_grande: {
     tipo: "casa_grande",
+    maxQuartosExtras: 5, // Pode construir até 5 quartos
     comotos: [
       {
-        id: "sala_grande",
-        nome: "Sala de Estar",
-        emoji: "🛋️",
-        descricao: "Grande sala espaçosa",
-        atividades: [
-          { id: "descansar", nome: "Descansar", emoji: "😴", efeito: { energia: 40 }, tempo: 1 },
-          { id: "tv", nome: "Assistir TV", emoji: "📺", efeito: { energia: 35, carisma: 12 }, tempo: 2 },
-          { id: "vitrola", nome: "Ouvir Música", emoji: "🎵", efeito: { energia: 30 }, tempo: 1 },
-          { id: "ler", nome: "Ler um Livro", emoji: "📚", efeito: { inteligencia: 15 }, tempo: 2 }
-        ]
+        id: "quarto_master", nome: "Suíte Master", emoji: "🛏️", descricao: "O teu quarto principal",
+        atividades: [{ id: "dormir", nome: "Dormir (+8h)", emoji: "😴", efeito: { energia: 100 }, tempo: 8 }]
       },
       {
-        id: "quarto_master",
-        nome: "Quarto Master",
-        emoji: "🛏️",
-        descricao: "Suíte luxuosa",
+        id: "cozinha_grande", nome: "Cozinha Equipada", emoji: "🍳", descricao: "Perfeita para treinar receitas",
         atividades: [
-          { id: "dormir", nome: "Dormir (+8h)", emoji: "😴", efeito: { energia: 100 }, tempo: 8 },
-          { id: "descansar_cama", nome: "Descansar na Cama", emoji: "🛏️", efeito: { energia: 50 }, tempo: 2 },
-          { id: "intimidade", nome: "Atividades Íntimas", emoji: "💑", efeito: { carisma: 20, resistencia: 15 }, tempo: 2 }
-        ]
-      },
-      {
-        id: "quarto_hospede",
-        nome: "Quarto de Hóspede",
-        emoji: "🛏️",
-        descricao: "Quarto secundário para visitas",
-        atividades: [
-          { id: "descansar", nome: "Descansar", emoji: "😴", efeito: { energia: 45 }, tempo: 1 }
-        ]
-      },
-      {
-        id: "cozinha_grande",
-        nome: "Cozinha",
-        emoji: "🍳",
-        descricao: "Cozinha espaçosa com equipamentos",
-        atividades: [
-          { id: "cozinhar", nome: "Cozinhar", emoji: "👨‍🍳", efeito: { energia: -5, carisma: 10 }, tempo: 1 },
-          { id: "comer", nome: "Comer", emoji: "🍽️", efeito: { energia: 50 }, tempo: 1 }
-        ]
-      },
-      {
-        id: "banheiro_grande",
-        nome: "Banheiro",
-        emoji: "🚿",
-        descricao: "Banheiro completo com banheira",
-        atividades: [
-          { id: "banho", nome: "Tomar Banho", emoji: "🚿", efeito: { energia: 25, carisma: 8 }, tempo: 1 },
-          { id: "banheira", nome: "Banho na Banheira", emoji: "🛁", efeito: { energia: 35, carisma: 12 }, tempo: 2 },
-          { id: "higiene", nome: "Higiêne Pessoal", emoji: "🧴", efeito: { carisma: 15 }, tempo: 1 }
-        ]
-      },
-      {
-        id: "escritorio",
-        nome: "Escritório",
-        emoji: "🖊️",
-        descricao: "Espaço de trabalho e estudo",
-        atividades: [
-          { id: "trabalhar", nome: "Trabalhar em Projetos", emoji: "💼", efeito: { inteligencia: 20, dinheiro: 50 }, tempo: 2 },
-          { id: "estudar", nome: "Estudar", emoji: "📚", efeito: { inteligencia: 25 }, tempo: 3 }
+          { id: "cozinhar_avancado", nome: "Treinar Receitas Gourmet", emoji: "👨‍🍳", efeito: { energia: -15, culinaria: 5 }, tempo: 2 }
         ]
       }
     ]
   },
   penthouse: {
     tipo: "penthouse",
+    maxQuartosExtras: 10, // Mansão Harém! Até 10 quartos extras
     comotos: [
       {
-        id: "sala_penthouse",
-        nome: "Sala Luxuosa",
-        emoji: "✨",
-        descricao: "Sala com vista panorâmica da cidade",
-        atividades: [
-          { id: "descansar", nome: "Descansar", emoji: "😴", efeito: { energia: 45 }, tempo: 1 },
-          { id: "tv", nome: "Assistir TV na Sala Premium", emoji: "📺", efeito: { energia: 40, carisma: 15 }, tempo: 2 },
-          { id: "vitrola", nome: "Ouvir Música Premium", emoji: "🎵", efeito: { energia: 35 }, tempo: 1 },
-          { id: "contemplar", nome: "Contemplar a Vista", emoji: "🌃", efeito: { energia: 30, inteligencia: 10 }, tempo: 1 }
-        ]
+        id: "suite_luxuosa", nome: "Suíte Presidencial", emoji: "👑", descricao: "Suíte com vista para o mar",
+        atividades: [{ id: "dormir", nome: "Dormir (+8h)", emoji: "😴", efeito: { energia: 100 }, tempo: 8 }]
       },
       {
-        id: "suite_luxuosa",
-        nome: "Suíte Luxuosa",
-        emoji: "👑",
-        descricao: "Suíte penthouse com jacuzzi privado",
+        id: "piscina_aquecida", nome: "Piscina & Spa Privado", emoji: "🏊", descricao: "Para festas e mergulhos",
         atividades: [
-          { id: "dormir", nome: "Dormir (+8h)", emoji: "😴", efeito: { energia: 100 }, tempo: 8 },
-          { id: "descansar_cama", nome: "Descansar na Cama Luxuosa", emoji: "🛏️", efeito: { energia: 55 }, tempo: 2 },
-          { id: "intimidade", nome: "Noite Especial", emoji: "💑", efeito: { carisma: 25, resistencia: 20 }, tempo: 2 }
-        ]
-      },
-      {
-        id: "cozinha_gourmet",
-        nome: "Cozinha Gourmet",
-        emoji: "👨‍🍳",
-        descricao: "Cozinha de chef profissional",
-        atividades: [
-          { id: "cozinhar_gourmet", nome: "Preparar Refeição Gourmet", emoji: "🍽️", efeito: { energia: -10, carisma: 15, inteligencia: 5 }, tempo: 2 },
-          { id: "comer_gourmet", nome: "Comer Deliciosamente", emoji: "🍾", efeito: { energia: 60, carisma: 10 }, tempo: 1 }
-        ]
-      },
-      {
-        id: "spa_privado",
-        nome: "Spa Privado",
-        emoji: "🧖",
-        descricao: "Spa completo com sauna e piscina",
-        atividades: [
-          { id: "sauna", nome: "Usar Sauna", emoji: "🔥", efeito: { energia: 50, resistencia: 15 }, tempo: 2 },
-          { id: "piscina", nome: "Nadar na Piscina", emoji: "🏊", efeito: { energia: 30, forca: 10, resistencia: 10 }, tempo: 2 },
-          { id: "massagem", nome: "Massagem Relaxante", emoji: "💆", efeito: { energia: 40, carisma: 20 }, tempo: 2 },
-          { id: "meditacao", nome: "Meditação", emoji: "🧘", efeito: { energia: 35, inteligencia: 15 }, tempo: 2 }
+          { id: "mergulhar", nome: "Mergulhar e Nadar", emoji: "🏊", efeito: { energia: 40, resistencia: 8, carisma: 5 }, tempo: 2 }
         ]
       }
     ]
   }
 };
 
+// Função da EMPREITEIRA: Constrói um novo quarto no imóvel
+export const construirQuartoHarem = (player, setPlayer) => {
+  const casaTipo = player.casa?.tipo || "apartamento_simples";
+  const imovelConfig = comotosImovel[casaTipo];
+  const quartosAtuais = player.casa?.quartosConstruidos || 0;
+  const custoObra = 15000;
+
+  if (quartosAtuais >= (imovelConfig?.maxQuartosExtras || 0)) {
+    alert(`❌ O teu imóvel (${casaTipo}) já atingiu o limite máximo de ampliação de cômodos! Compra uma mansão ou penthouse na Imobiliária para expandir o teu Harém.`);
+    return false;
+  }
+  if ((player.dinheiro || 0) < custoObra) {
+    alert(`❌ Sem fundos! A Empreiteira cobra R$ ${custoObra.toLocaleString()} para construir e decorar uma nova suíte de hóspede/harém.`);
+    return false;
+  }
+
+  setPlayer(prev => ({
+    ...prev,
+    dinheiro: prev.dinheiro - custoObra,
+    casa: {
+      ...prev.casa,
+      quartosConstruidos: (prev.casa?.quartosConstruidos || 0) + 1
+    }
+  }));
+  alert(`🎉 Obra Concluída! A Empreiteira construiu a Suíte de Harém #${quartosAtuais + 1}. Agora podes alocar mais parceiros a morar contigo!`);
+  return true;
+};
 // Obter cômodos de um imóvel
 export const obterComotos = (tipoImovel) => {
   return comotosImovel[tipoImovel]?.comotos || comotosImovel.apartamento_simples.comotos;
@@ -229,6 +112,7 @@ export const executarAtividade = (atividade, player, setPlayer, dormir) => {
   setPlayer(prev => ({
     ...prev,
     energia: Math.min(100, Math.max(0, (prev.energia || 100) + (efeito.energia || 0))),
+    culinaria: Math.min(100, Math.max(0, (prev.culinaria || 0) + (efeito.culinaria || 0))),
     forca: Math.min(100, Math.max(0, (prev.forca || 50) + (efeito.forca || 0))),
     reflexo: Math.min(100, Math.max(0, (prev.reflexo || 50) + (efeito.reflexo || 0))),
     inteligencia: Math.min(100, Math.max(0, (prev.inteligencia || 50) + (efeito.inteligencia || 0))),

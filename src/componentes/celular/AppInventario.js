@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { descricaoImovel, descricaoVeiculo, listarImoveis } from '../../utils/inventorySystem';
 import { descricaoGravidez } from '../../utils/reproductionSystem';
 
 export default function AppInventario({ player, mundo, voltarHome }) {

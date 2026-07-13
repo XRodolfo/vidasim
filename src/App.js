@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import './App.css';
-import { textos, mundoInicial, profissoes, eventos, modificadoresIdade } from './dados';
+import { textos, mundoInicial, profissoes } from './dados';
 import { inicializarDadosReproductivos } from './utils/reproductionSystem';
 import { inicializarRelacionamento } from './utils/relationshipSystem';
-
+import DistritoComercial from './telas/DistritoComercial';
+import DistritoNoturno from './telas/DistritoNoturno';
 import Criacao from './telas/Criacao';
 import Quarto from './telas/Quarto';
 import Mapa from './telas/Mapa';
@@ -20,10 +21,11 @@ import LojaVeiculos from './telas/LojaVeiculos';
 import Imobiliaria from './telas/Imobiliaria';
 import LojaRoupas from './telas/LojaRoupas';
 import ContraceptivoDialog from './componentes/ContraceptivoDialog';
-import { obterComotos, executarAtividade, calcularCorQualidade } from './utils/casasSystem';
+import Trabalho from './telas/Trabalho';
+import Restaurante from './telas/Restaurante'
 
 function App() {
-  const [idioma, setIdioma] = useState("pt");
+  const [idioma] = useState("pt");
   const t = textos[idioma];
 
   const [telaAtual, setTelaAtual] = useState("menuPrincipal");
@@ -34,7 +36,7 @@ function App() {
   const [player, setPlayer] = useState({
     nome: "Alex", idade: 18, genero: "Mulher",
     orientacao: "Heterossexual", identidadeGenero: "Cisgênero", preferenciaBusca: "Homens",
-    periciaSexual: 15, // Começa baixo e vai evoluindo com a prática no motel
+    periciaSexual: 15,
     cidade_origem: "SaoPaulo", cidade_id: "SaoPaulo", 
     altura: 165, peso: 60, cabelo: "Longos", corCabelo: "#2c1b18",
     seios: "Médios", penis: "Médio", bunda: "Redonda", seios_cm: 95, penis_cm: 14,
@@ -119,16 +121,17 @@ function App() {
   if (telaAtual === "aeroporto") return <Aeroporto player={player} setPlayer={setPlayer} mundo={mundo} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
   if (telaAtual === "lojaVeiculos") return <LojaVeiculos player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} />;
   if (telaAtual === "imobiliaria") return <Imobiliaria player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} />;
-  
+  if (telaAtual === "distritoComercial") return <DistritoComercial player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} />;
+  if (telaAtual === "distritoNoturno") return <DistritoNoturno player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} />;
   if (telaAtual === "motel") return <Motel player={player} setPlayer={setPlayer} mundo={mundo} npc={parceiroMotel} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
   if (telaAtual === "contraceptivoDialog") return <ContraceptivoDialog player={player} setPlayer={setPlayer} npc={parceiroMotel} setTelaAtual={setTelaAtual} />;
   if (telaAtual === "lojaRoupas") return <LojaRoupas player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
   if (telaAtual === "prefeitura") return <Prefeitura player={player} setPlayer={setPlayer} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
   if (telaAtual === "academia") return <Academia player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
   if (telaAtual === "centroComercial") return <CentroComercial player={player} setPlayer={setPlayer} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
-  
   if (telaAtual === "celular") return <Celular player={player} setPlayer={setPlayer} mundo={mundo} t={t} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} setParceiroMotel={setParceiroMotel} />;
-
+  if (telaAtual === "trabalho") return <Trabalho player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
+  if (telaAtual === "restaurante") return <Restaurante player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
   return null;
 }
 
