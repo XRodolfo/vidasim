@@ -22,6 +22,7 @@ import Imobiliaria from './telas/Imobiliaria';
 import LojaRoupas from './telas/LojaRoupas';
 import ContraceptivoDialog from './componentes/ContraceptivoDialog';
 import Trabalho from './telas/Trabalho';
+import Banco from './telas/Banco';
 import Restaurante from './telas/Restaurante'
 
 function App() {
@@ -132,6 +133,7 @@ function App() {
   if (telaAtual === "celular") return <Celular player={player} setPlayer={setPlayer} mundo={mundo} t={t} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} setParceiroMotel={setParceiroMotel} />;
   if (telaAtual === "trabalho") return <Trabalho player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
   if (telaAtual === "restaurante") return <Restaurante player={player} setPlayer={setPlayer} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
+  if (telaAtual === "banco") return <Banco player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} />;
   return null;
 }
 

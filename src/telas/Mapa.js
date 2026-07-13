@@ -11,7 +11,7 @@ export default function Mapa({ player, setTelaAtual, avancarTempo }) {
   };
 
   return (
-    <div className="mapa-container" style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', color: '#fff' }}>
+    <div className="mapa-container" style={{ padding: '20px', maxWidth: '650px', margin: '0 auto', color: '#fff' }}>
       <h2 style={{ borderBottom: '2px solid #4CAF50', paddingBottom: '10px' }}>🗺️ Mapa da Cidade: {player.config?.nome || "Metrópole"}</h2>
       <p style={{ fontStyle: 'italic', color: '#ccc' }}>Seleciona o teu destino. Deslocações consomem tempo e um pouco de energia.</p>
 
@@ -26,22 +26,31 @@ export default function Mapa({ player, setTelaAtual, avancarTempo }) {
         </div>
       </div>
 
-      {/* SHOPPING CENTER */}
+      {/* SHOPPING CENTER & GASTRONOMIA */}
       <div className="setor-mapa" style={{ backgroundColor: '#1e272e', padding: '15px', borderRadius: '10px', marginBottom: '15px' }}>
-        <h3 style={{ margin: '0 0 10px 0', color: '#ff9f43' }}>🛍️ Shopping Center (Centro Comercial)</h3>
+        <h3 style={{ margin: '0 0 10px 0', color: '#ff9f43' }}>🛍️ Shopping Center & Polo Gastronômico</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
           <button onClick={() => irPara('centroComercial', 15, 5)} style={{ ...btnStyle, backgroundColor: '#e67e22', fontWeight: 'bold' }}>
-            🏬 Entrar no Shopping (Lojas, Alimentação & Empregos)
+            🏬 Entrar no Shopping (Lojas, Alimentação & Comércio)
+          </button>
+          <button onClick={() => irPara('restaurante', 15, 5)} style={{ ...btnStyle, backgroundColor: '#d35400', fontWeight: 'bold' }}>
+            🍽️ Polo Gastronômico (Trabalhar em Restaurantes & Carreira de Chef)
           </button>
         </div>
       </div>
 
-      {/* DISTRITO COMERCIAL */}
+      {/* DISTRITO COMERCIAL & CÍVICO */}
       <div className="setor-mapa" style={{ backgroundColor: '#1e272e', padding: '15px', borderRadius: '10px', marginBottom: '15px' }}>
-        <h3 style={{ margin: '0 0 10px 0', color: '#54a0ff' }}>🏢 Distrito Comercial & Cívico</h3>
+        <h3 style={{ margin: '0 0 10px 0', color: '#54a0ff' }}>🏢 Distrito Comercial, Cívico & Financeiro</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
+          <button onClick={() => irPara('trabalho', 15, 5)} style={{ ...btnStyle, backgroundColor: '#27ae60', fontWeight: 'bold' }}>
+            💼 Centro Empresarial (O Teu Trabalho, Colegas & Promoções)
+          </button>
           <button onClick={() => irPara('distritoComercial', 20, 5)} style={{ ...btnStyle, backgroundColor: '#2e86de', fontWeight: 'bold' }}>
-            🏛️ Aceder ao Centro Cívico (Hospital, Advocacia, Prefeitura & Corporativo)
+            🏛️ Centro Cívico (Hospital, Advocacia, Prefeitura & Corporativo)
+          </button>
+          <button onClick={() => irPara('banco', 15, 2)} style={{ ...btnStyle, backgroundColor: '#f1c40f', color: '#000', fontWeight: 'bold' }}>
+            🏦 Banco Global (Empréstimos, Financiamentos & Investimentos)
           </button>
         </div>
       </div>
