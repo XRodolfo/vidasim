@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Avatar from '../componentes/Avatar';
 import { calcularModificadorFetiche } from '../utils/fetchesSystem';
-import { calcularGravidez, tiposContraceptivos, descricaoGravidez } from '../utils/reproductionSystem';
+import { calcularGravidez, tiposContraceptivos } from '../utils/reproductionSystem';
 import { obterBonusIntimacao } from '../utils/hotelSystem';
 
 export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, setTelaAtual, categoriaHotel = "3" }) {
@@ -12,11 +12,8 @@ export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, set
   const [log, setLog] = useState(["Você trancou a porta. O quarto respira sensualidade com luzes em neon."].concat(
     npc?.fetiches?.length > 0 ? [`💕 ${npc.nome} possui fetiches: ${npc.fetiches.map(f => f.nome).join(", ")}`] : []
   ));
+  const contraceptivoUsoAtual = player.dadosReproductivos?.contraceptivoAtivo || "camisinha";
   const [querSair, setQuerSair] = useState(false);
-  const [showOpcaoPrenhez, setShowOpcaoPrenhez] = useState(false);
-  const [contraceptivoUsoAtual, setContraceptivoUsoAtual] = useState(
-    player.dadosReproductivos?.contraceptivoAtivo || "camisinha"
-  );
   const bonusIntimacao = obterBonusIntimacao(categoriaHotel);
 
   if (!npc) {
