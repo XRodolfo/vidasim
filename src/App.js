@@ -46,6 +46,7 @@ function App() {
     periciaSexual: 15,
     cidade_origem: "SaoPaulo", cidade_id: "SaoPaulo", 
     altura: 165, peso: 60, cabelo: "Longos", corCabelo: "#2c1b18",
+    corPele: "#ffdbac", corOlhos: "#3498db", estiloCabelo: "Messy", comprimentoCabelo: "Medium",
     seios: "Médios", penis: "Médio", bunda: "Redonda", seios_cm: 95, penis_cm: 14,
     roupaTop: "Camiseta", roupaBottom: "Calça", roupaIntima: true,       
     corRoupaTop: "#f1c40f", corRoupaBottom: "#1e3799",

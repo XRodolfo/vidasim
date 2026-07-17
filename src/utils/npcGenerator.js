@@ -63,6 +63,28 @@ export const gerarNPC = (player, mundo) => {
     }
   }
 
+  const coresCabelo = ["#2c1b18", "#111111", "#e67e22", "#f1c40f", "#9b59b6", "#e74c3c"];
+  const estilosCabelo = ["Messy", "Luxurious", "Afro", "Braided", "Bun", "Cornrows", "Curled", "Dreadlocks", "Eary", "Neat", "Ninja", "Ponytail", "Tails", "Up"];
+  const comprimentosCabelo = ["Short", "Medium", "Long", "Giant"];
+  const coresOlhos = ["#3498db", "#2ecc71", "#784f2f", "#111111", "#e74c3c", "#9b59b6"];
+  const coresRoupas = ["#3498db", "#111111", "#e74c3c", "#2ecc71", "#f1c40f", "#9b59b6", "#ff4757", "#2f3542"];
+
+  const estiloSorteado = Math.random() < 0.05 ? "Careca" : estilosCabelo[Math.floor(Math.random() * estilosCabelo.length)];
+  const comprimentoSorteado = comprimentosCabelo[Math.floor(Math.random() * comprimentosCabelo.length)];
+  const corOlhosSorteada = coresOlhos[Math.floor(Math.random() * coresOlhos.length)];
+
+  // Cor de pele baseada na etnia
+  let corPeleSorteada = "#ffdbac";
+  if (etniaNPC === "Negra") {
+    corPeleSorteada = Math.random() > 0.5 ? "#583E2F" : "#825633";
+  } else if (etniaNPC === "Asiática") {
+    corPeleSorteada = "#F4C9AA";
+  } else if (etniaNPC === "Branca") {
+    corPeleSorteada = Math.random() > 0.5 ? "#F4EAF0" : "#F5D5C9";
+  } else {
+    corPeleSorteada = Math.random() > 0.5 ? "#E1B585" : "#D58E5F";
+  }
+
   return {
     id: Math.random().toString(),
     nome: `${primeiroNome} ${sobrenome}`,
@@ -71,12 +93,22 @@ export const gerarNPC = (player, mundo) => {
     estadoCivil: estadoCivilSorteado, conjuge: nomeConjuge,
     profissao: profissao, bio: bioFinal,
     afeto: 10, fidelidade: Math.floor(Math.random() * 100), libido: 30 + Math.floor(Math.random() * 70), historico: [],
+    forca: 10 + Math.floor(Math.random() * 80), // Força física aleatória
     altura: 155 + Math.floor(Math.random() * 35), peso: 50 + Math.floor(Math.random() * 40),
     seios_cm: generoNPC === "Mulher" ? 80 + Math.floor(Math.random() * 40) : 0,
     penis_cm: generoNPC === "Homem" ? 12 + Math.floor(Math.random() * 10) : 0,
-    cabelo: ["Curtos", "Longos", "Cacheados", "Careca"][Math.floor(Math.random() * 4)],
-    corCabelo: ["#2c1b18", "#111111", "#e67e22", "#f1c40f"][Math.floor(Math.random() * 4)],
-    roupaIntima: true, roupaTop: "Camiseta", roupaBottom: "Calça", corRoupaTop: "#3498db", corRoupaBottom: "#111111",
+    cabelo: estiloSorteado === "Careca" ? "Careca" : (comprimentoSorteado === "Short" ? "Curtos" : "Longos"),
+    estiloCabelo: estiloSorteado,
+    comprimentoCabelo: comprimentoSorteado,
+    corCabelo: coresCabelo[Math.floor(Math.random() * coresCabelo.length)],
+    corPele: corPeleSorteada,
+    corOlhos: corOlhosSorteada,
+    roupaIntima: true, 
+    roupaTop: Math.random() > 0.3 ? "Camiseta" : "Top", 
+    roupaBottom: Math.random() > 0.3 ? "Calça" : "Short", 
+    corRoupaTop: coresRoupas[Math.floor(Math.random() * coresRoupas.length)], 
+    corRoupaBottom: coresRoupas[Math.floor(Math.random() * coresRoupas.length)],
+    corRoupaIntima: coresRoupas[Math.floor(Math.random() * coresRoupas.length)],
     fetiches: gerarFetchesAleatorias(),
     virgem: eVirgem,
     sensibilidade: 30 + Math.random() * 40,

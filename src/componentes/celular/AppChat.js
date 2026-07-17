@@ -74,10 +74,26 @@ export default function AppChat({ player, setPlayer, mundo, contatosNPCs, setCon
         <div style={{width: '120px', height: '120px', borderRadius: '15px', overflow: 'hidden', margin: '0 auto 15px auto', backgroundColor: '#ececec', border: '3px solid #38bdf8'}}><div style={{transform: 'scale(1.5)', transformOrigin: 'top center', width: '100%', height: '100%'}}><Avatar player={npcAtivo} mundo={mundo} /></div></div>
         <h2 style={{textAlign: 'center', margin: '0 0 5px 0'}}>{npcAtivo.nome}, {npcAtivo.idade}</h2>
         <p style={{textAlign: 'center', margin: '0 0 20px 0', color: '#38bdf8', fontWeight: 'bold'}}>{npcAtivo.profissao}</p>
-        <div style={{backgroundColor: '#1e293b', padding: '15px', borderRadius: '10px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px'}}>
+        <div style={{backgroundColor: '#1e293b', padding: '15px', borderRadius: '10px', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1}}>
           <p style={{margin: '0 0 10px 0', fontStyle: 'italic', borderBottom: '1px solid #334155', paddingBottom: '10px'}}>"{npcAtivo.bio}"</p>
           <span><strong>Estado Civil:</strong> {npcAtivo.estadoCivil}</span>
           <span><strong>Mora com você:</strong> {npcAtivo.mora_junto ? "Sim 💑" : "Não"}</span>
+          <span><strong>Altura:</strong> {npcAtivo.altura || 170} cm</span>
+          <span><strong>Peso:</strong> {npcAtivo.peso || 65} kg</span>
+          <span><strong>Etnia:</strong> {npcAtivo.etnia || "Branca"}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <strong>Pele:</strong> 
+            <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: npcAtivo.corPele || "#ffdbac", border: '1px solid #fff' }} />
+            <strong>Olhos:</strong>
+            <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: npcAtivo.corOlhos || "#3498db", border: '1px solid #fff' }} />
+          </div>
+          <span><strong>Cabelo:</strong> {npcAtivo.estiloCabelo || npcAtivo.cabelo || "Messy"} ({npcAtivo.comprimentoCabelo || "Medium"})</span>
+          {npcAtivo.genero === "Mulher" && npcAtivo.seios_cm > 0 && (
+            <span><strong>Seios:</strong> {npcAtivo.seios_cm} cm</span>
+          )}
+          {npcAtivo.genero === "Homem" && npcAtivo.penis_cm > 0 && (
+            <span><strong>Pênis:</strong> {npcAtivo.penis_cm} cm</span>
+          )}
           {npcAtivo.fetiches && npcAtivo.fetiches.length > 0 && (
             <span style={{ color: '#ec4899' }}><strong>💕 Fetiches:</strong> {npcAtivo.fetiches.map(f => f.nome).join(", ")}</span>
           )}

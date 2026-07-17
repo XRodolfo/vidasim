@@ -56,6 +56,7 @@ export default function AppLume({ player, setPlayer, mundo, contatosNPCs, setCon
            
            <h3 style={{margin: '10px 0 5px 0'}}>{perfilTinder.nome}, {perfilTinder.idade}</h3>
            <p style={{color: '#94a3b8', fontSize: '12px', margin: '0 0 5px 0'}}>{perfilTinder.estadoCivil} | {perfilTinder.profissao}</p>
+           <p style={{color: '#38bdf8', fontSize: '12px', margin: '0 0 5px 0'}}>📏 {perfilTinder.altura} cm | ⚖️ {perfilTinder.peso} kg | 🧬 {perfilTinder.etnia}</p>
            <p style={{color: '#fff', fontSize: '13px', margin: '0 0 15px 0', fontStyle: 'italic'}}>"{perfilTinder.bio}"</p>
            
            <div style={{display: 'flex', justifyContent: 'center', gap: '30px'}}>

@@ -1,16 +1,93 @@
 import React from 'react';
 import Avatar from '../componentes/Avatar';
 import { cmParaPol } from '../dados';
+import { AVATAR_ASSETS } from '../componentes/avatar_assets';
 
 export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setTelaAtual }) {
   
+  const tonsDePele = { 
+    "Latina": "#d2a172", "Asiática": "#fbe7a1", 
+    "Mista": "#c68642", "Negra": "#5c3317", "Branca": "#ffdbac" 
+  };
+
+  const cabelosPorGenero = {
+    "Mulher": [
+      { id: "Messy", nome: "Bagunçado (Messy)" },
+      { id: "Luxurious", nome: "Ondulado Luxuoso (Luxurious)" },
+      { id: "Afro", nome: "Afro / Black Power" },
+      { id: "Braided", nome: "Trançado (Braided)" },
+      { id: "Bun", nome: "Coque (Bun)" },
+      { id: "Cornrows", nome: "Trancinhas (Cornrows)" },
+      { id: "Curled", nome: "Cacheado Curto (Curled)" },
+      { id: "Dreadlocks", nome: "Dreadlocks" },
+      { id: "Neat", nome: "Liso Arrumado (Neat)" },
+      { id: "Ponytail", nome: "Rabo de Cavalo (Ponytail)" },
+      { id: "Tails", nome: "Maria-chiquinha (Tails)" },
+      { id: "Up", nome: "Coque Alto (Up)" },
+      { id: "Careca", nome: "Careca" }
+    ],
+    "Homem": [
+      { id: "Messy", nome: "Bagunçado (Messy)" },
+      { id: "Neat", nome: "Liso Arrumado (Neat)" },
+      { id: "Undercut", nome: "Undercut (Raspado Lateral)" },
+      { id: "Strip", nome: "Moicano (Strip)" },
+      { id: "Eary", nome: "Espetado (Eary)" },
+      { id: "Ninja", nome: "Estilo Ninja (Ninja)" },
+      { id: "Careca", nome: "Careca" }
+    ]
+  };
+
+  const isEstiloValido = (estilo, length) => {
+    if (estilo === "Careca") return true;
+    const s = estilo.toLowerCase();
+    
+    // Undercut / Strip mapeiam para o cabelo frontal Strip
+    if (s === "undercut" || s === "strip") {
+      return !!AVATAR_ASSETS[`Art_Vector_Hair_Fore_Strip_${length}`];
+    }
+    
+    // Ninja usa a chave Ninja
+    if (s === "ninja") {
+      return !!AVATAR_ASSETS[`Art_Vector_Hair_Back_Ninja_${length}`];
+    }
+    
+    const capStyle = estilo.charAt(0).toUpperCase() + estilo.slice(1);
+    
+    // Bun / Neat / Ponytail usam apenas chaves traseiras com comprimento
+    if (["bun", "neat", "ponytail"].includes(s)) {
+      return !!AVATAR_ASSETS[`Art_Vector_Hair_Back_${capStyle}_${length}`];
+    }
+    
+    return !!AVATAR_ASSETS[`Art_Vector_Hair_Back_${capStyle}_${length}`] || !!AVATAR_ASSETS[`Art_Vector_Hair_Fore_${capStyle}_${length}`];
+  };
+
+  const currentLength = player.comprimentoCabelo || "Medium";
+  const listCabelos = cabelosPorGenero[player.genero] || cabelosPorGenero["Mulher"];
+  const cabelosFiltrados = listCabelos.filter(h => isEstiloValido(h.id, currentLength));
+
   const handleGeneroChange = (g) => {
-    // Configura uma busca coerente padrão baseada no gênero e orientação
     let buscaDefault = g === "Mulher" ? "Homens" : "Mulheres";
     if (player.orientacao === "Homosexual") buscaDefault = g === "Mulher" ? "Mulheres" : "Homens";
     if (player.orientacao === "Bissexual" || player.orientacao === "Pansexual") buscaDefault = "Ambos";
     
-    setPlayer({ ...player, genero: g, preferenciaBusca: buscaDefault });
+    // Filtrar cabelos para o novo gênero
+    const length = player.comprimentoCabelo || "Medium";
+    const newList = cabelosPorGenero[g] || cabelosPorGenero["Mulher"];
+    const validStyles = newList.filter(h => isEstiloValido(h.id, length));
+    
+    let currentStyle = player.estiloCabelo || "Messy";
+    if (!validStyles.some(h => h.id === currentStyle)) {
+      currentStyle = validStyles[0]?.id || "Careca";
+    }
+
+    setPlayer({ 
+      ...player, 
+      genero: g, 
+      preferenciaBusca: buscaDefault,
+      seios_cm: g === "Mulher" ? 95 : 0,
+      penis_cm: g === "Homem" ? 14 : 0,
+      estiloCabelo: currentStyle
+    });
   };
 
   const handleOrientacaoChange = (o) => {
@@ -19,6 +96,30 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
     if (o === "Bissexual" || o === "Pansexual" || o === "Assexual") buscaDefault = "Ambos";
 
     setPlayer({ ...player, orientacao: o, preferenciaBusca: buscaDefault });
+  };
+
+  const handleLengthChange = (length) => {
+    let currentStyle = player.estiloCabelo || "Messy";
+    const newList = cabelosPorGenero[player.genero] || cabelosPorGenero["Mulher"];
+    const validStyles = newList.filter(h => isEstiloValido(h.id, length));
+    
+    if (!validStyles.some(h => h.id === currentStyle)) {
+      currentStyle = validStyles[0]?.id || "Careca";
+    }
+    
+    setPlayer({ ...player, comprimentoCabelo: length, estiloCabelo: currentStyle });
+  };
+
+  const handleEstiloCabeloChange = (estilo) => {
+    let cabeloVal = "Curtos";
+    if (estilo === "Careca") cabeloVal = "Careca";
+    else if (["Luxurious", "Bun", "Ponytail", "Dreadlocks", "Tails", "Up"].includes(estilo)) cabeloVal = "Longos";
+
+    setPlayer({ 
+      ...player, 
+      estiloCabelo: estilo, 
+      cabelo: cabeloVal 
+    });
   };
 
   return (
@@ -48,7 +149,6 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
                   <option value="Homem">{t.homem}</option>
               </select>
 
-              {/* NOVOS SELETORES EM CRIACAO */}
               <label>🧬 Identidade de Gênero:</label>
               <select value={player.identidadeGenero || "Cisgênero"} onChange={(e) => setPlayer({...player, identidadeGenero: e.target.value})}>
                 <option value="Cisgênero">Cisgênero (Identifica-se com o sexo biológico)</option>
@@ -86,23 +186,124 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
               <label>Peso (kg)</label>
               <input type="number" value={player.peso} onChange={(e) => setPlayer({...player, peso: parseInt(e.target.value) || 60})} />
 
+              <label>🏋️ Força / Tonificação:</label>
+              <input 
+                type="range" min="10" max="100" 
+                value={player.forca || 50} 
+                onChange={(e) => setPlayer({...player, forca: parseInt(e.target.value)})} 
+              />
+              <small style={{ marginTop: '-5px', color: '#ccc' }}>
+                {player.forca >= 80 ? "💪 Ripped / Muito Musculoso" : 
+                 player.forca >= 55 ? "👟 Tonificado / Atlético" : 
+                 player.forca >= 30 ? "🏃 Leve Definição" : "🥚 Sem Definição"} ({player.forca || 50})
+              </small>
+
+              <label>🎨 Cor de Pele:</label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <select 
+                  value={Object.values(tonsDePele).includes(player.corPele) ? player.corPele : "custom"} 
+                  onChange={(e) => {
+                    if (e.target.value !== "custom") {
+                      setPlayer({...player, corPele: e.target.value});
+                    }
+                  }}
+                  style={{ flex: 1 }}
+                >
+                  <option value="#ffdbac">Branca Padrão</option>
+                  <option value="#F4EAF0">Muito Clara (Ivory)</option>
+                  <option value="#F5D5C9">Clara (Pale)</option>
+                  <option value="#fbe7a1">Asiática Padrão</option>
+                  <option value="#F4C9AA">Bege Claro (Olive)</option>
+                  <option value="#d2a172">Latina Padrão</option>
+                  <option value="#E1B585">Bronzeada</option>
+                  <option value="#c68642">Mista Padrão</option>
+                  <option value="#D58E5F">Morena</option>
+                  <option value="#825633">Negra Claro</option>
+                  <option value="#5c3317">Negra Padrão</option>
+                  <option value="#583E2F">Negra Retinta</option>
+                  <option value="custom">Personalizada 🎨</option>
+                </select>
+                <input 
+                  type="color" 
+                  value={player.corPele || "#ffdbac"} 
+                  onChange={(e) => setPlayer({...player, corPele: e.target.value})}
+                  style={{ width: '40px', height: '36px', padding: 0, border: 'none', cursor: 'pointer' }}
+                />
+              </div>
+
+              <label>👁️ Cor dos Olhos:</label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <select 
+                  value={["#3498db", "#2ecc71", "#784f2f", "#111111", "#e74c3c", "#9b59b6"].includes(player.corOlhos) ? player.corOlhos : "custom"} 
+                  onChange={(e) => {
+                    if (e.target.value !== "custom") {
+                      setPlayer({...player, corOlhos: e.target.value});
+                    }
+                  }}
+                  style={{ flex: 1 }}
+                >
+                  <option value="#3498db">Azul</option>
+                  <option value="#2ecc71">Verde</option>
+                  <option value="#784f2f">Castanho</option>
+                  <option value="#111111">Preto</option>
+                  <option value="#e74c3c">Vermelho</option>
+                  <option value="#9b59b6">Violeta</option>
+                  <option value="custom">Personalizada 🎨</option>
+                </select>
+                <input 
+                  type="color" 
+                  value={player.corOlhos || "#3498db"} 
+                  onChange={(e) => setPlayer({...player, corOlhos: e.target.value})}
+                  style={{ width: '40px', height: '36px', padding: 0, border: 'none', cursor: 'pointer' }}
+                />
+              </div>
+
+              <label>📏 Comprimento do Cabelo:</label>
+              <select 
+                value={player.comprimentoCabelo || "Medium"} 
+                onChange={(e) => handleLengthChange(e.target.value)}
+              >
+                <option value="Short">Curto</option>
+                <option value="Medium">Médio</option>
+                <option value="Long">Longo</option>
+                <option value="Giant">Gigante</option>
+              </select>
+
               <label>✂️ Estilo do Cabelo:</label>
-              <select value={player.cabelo} onChange={(e) => setPlayer({...player, cabelo: e.target.value})}>
-                <option value="Careca">Careca</option>
-                <option value="Curtos">Curto Casual</option>
-                <option value="Longos">Longo Volumoso</option>
-                <option value="Espetado">Espetado Anime</option>
-                <option value="Cacheados">Cacheado / Afro</option>
+              <select 
+                value={player.estiloCabelo || "Messy"} 
+                onChange={(e) => handleEstiloCabeloChange(e.target.value)}
+              >
+                {cabelosFiltrados.map(h => (
+                  <option key={h.id} value={h.id}>{h.nome}</option>
+                ))}
               </select>
 
               <label>🎨 Cor do Cabelo:</label>
-              <select value={player.corCabelo} onChange={(e) => setPlayer({...player, corCabelo: e.target.value})}>
-                <option value="#2c1b18">Castanho Escuro</option>
-                <option value="#111111">Preto Absoluto</option>
-                <option value="#e67e22">Ruivo Fogo</option>
-                <option value="#f1c40f">Loiro Claro</option>
-                <option value="#9b59b6">Roxo Neon</option>
-              </select>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <select 
+                  value={["#2c1b18", "#111111", "#e67e22", "#f1c40f", "#9b59b6"].includes(player.corCabelo) ? player.corCabelo : "custom"} 
+                  onChange={(e) => {
+                    if (e.target.value !== "custom") {
+                      setPlayer({...player, corCabelo: e.target.value});
+                    }
+                  }}
+                  style={{ flex: 1 }}
+                >
+                  <option value="#2c1b18">Castanho</option>
+                  <option value="#111111">Preto</option>
+                  <option value="#e67e22">Ruivo</option>
+                  <option value="#f1c40f">Loiro</option>
+                  <option value="#9b59b6">Roxo</option>
+                  <option value="custom">Personalizada 🎨</option>
+                </select>
+                <input 
+                  type="color" 
+                  value={player.corCabelo || "#2c1b18"} 
+                  onChange={(e) => setPlayer({...player, corCabelo: e.target.value})}
+                  style={{ width: '40px', height: '36px', padding: 0, border: 'none', cursor: 'pointer' }}
+                />
+              </div>
 
               {player.genero === "Mulher" ? (
                 <>
@@ -130,11 +331,33 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
           <div style={{flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px'}}>
              <h2 style={{color: '#2ed573'}}>Visualização</h2>
              <div style={{width: '200px', height: '400px'}}>
-               <Avatar player={player} mundo={{}} />
+               <Avatar player={player} mundo={mundo} />
+             </div>
+             
+             {/* CONTROLES RÁPIDOS DE VESTUÁRIO NA CRIAÇÃO */}
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '200px' }}>
+                <button 
+                  onClick={() => setPlayer({ ...player, roupaTop: player.roupaTop === "Nenhuma" ? (player.genero === "Mulher" ? "Top" : "Camiseta") : "Nenhuma" })} 
+                  style={{ backgroundColor: '#334155', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', width: '100%' }}
+                >
+                  {player.roupaTop === "Nenhuma" ? "👕 Vestir Top/Camiseta" : "❌ Tirar Top/Camiseta"}
+                </button>
+                <button 
+                  onClick={() => setPlayer({ ...player, roupaBottom: player.roupaBottom === "Nenhuma" ? "Calça" : "Nenhuma" })} 
+                  style={{ backgroundColor: '#334155', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', width: '100%' }}
+                >
+                  {player.roupaBottom === "Nenhuma" ? "👖 Vestir Calça/Short" : "❌ Tirar Calça/Short"}
+                </button>
+                <button 
+                  onClick={() => setPlayer({ ...player, roupaIntima: !player.roupaIntima })} 
+                  style={{ backgroundColor: '#334155', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', width: '100%' }}
+                >
+                  {player.roupaIntima ? "❌ Tirar Roupa Íntima" : "👙 Vestir Roupa Íntima"}
+                </button>
              </div>
           </div>
 
-        </div>
+         </div>
         
         <div className="acoes" style={{marginTop: '25px', borderTop: '1px solid #444', paddingTop: '20px', justifyContent: 'space-between'}}>
           <button onClick={() => setTelaAtual("menuPrincipal")} style={{backgroundColor: '#555'}}>{t.voltar}</button>

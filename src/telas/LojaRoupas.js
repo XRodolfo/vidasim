@@ -8,6 +8,7 @@ export default function LojaRoupas({ player, setPlayer, setTelaAtual }) {
   const abas = [
     { id: 'comuns', titulo: '👕 Roupas Comuns' },
     { id: 'academia', titulo: '🏋️ Academia' },
+    { id: 'especiais', titulo: '🎭 Especiais / Cosplays' },
     { id: 'intimasGerais', titulo: '👙 Íntimas Gerais' },
     { id: 'intimasSensuais', titulo: '💋 Íntimas Sensuais' }
   ];

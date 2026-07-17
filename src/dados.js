@@ -174,12 +174,24 @@ export const catalogoRoupas = {
     { id: "cam_branca", nome: "Camiseta Básica Branca", preco: 50, tipo: "roupaTop", valor: "Camiseta", cor: "#ffffff" },
     { id: "cam_preta", nome: "Camiseta Preta", preco: 55, tipo: "roupaTop", valor: "Camiseta", cor: "#222222" },
     { id: "calca_jeans", nome: "Calça Jeans Clássica", preco: 120, tipo: "roupaBottom", valor: "Calça", cor: "#1e3799" },
-    { id: "calca_escura", nome: "Calça Sarja Escura", preco: 130, tipo: "roupaBottom", valor: "Calça", cor: "#111111" }
+    { id: "calca_escura", nome: "Calça Sarja Escura", preco: 130, tipo: "roupaBottom", valor: "Calça", cor: "#111111" },
+    { id: "sweater_casual", nome: "Suéter Casual de Lã", preco: 140, tipo: "roupaTop", valor: "Suéter", cor: "#e67e22" },
+    { id: "minidress_festa", nome: "Mini Vestido de Festa", preco: 250, tipo: "roupaTop", valor: "Vestido Curto", cor: "#e74c3c", genero: "Mulher" },
+    { id: "minidress_legs", nome: "Meias do Mini Vestido", preco: 80, tipo: "roupaBottom", valor: "Meia Curta", cor: "#111111", genero: "Mulher" }
   ],
   academia: [
     { id: "top_treino", nome: "Top de Treino", preco: 80, tipo: "roupaTop", valor: "Top", cor: "#ff4757", genero: "Mulher" },
     { id: "regata_treino", nome: "Regata Cavada", preco: 60, tipo: "roupaTop", valor: "Camiseta", cor: "#34495e" },
-    { id: "short_treino", nome: "Short de Corrida", preco: 70, tipo: "roupaBottom", valor: "Short", cor: "#2d3436" }
+    { id: "short_treino", nome: "Short de Corrida", preco: 70, tipo: "roupaBottom", valor: "Short", cor: "#2d3436" },
+    { id: "leotard_fit", nome: "Collant de Ginástica", preco: 120, tipo: "roupaTop", valor: "Collant (Leotard)", cor: "#222222" }
+  ],
+  especiais: [ // Nova categoria de roupas especiais/cosplays!
+    { id: "school_top", nome: "Uniforme Escolar (Top)", preco: 180, tipo: "roupaTop", valor: "Uniforme Escolar", cor: "#3498db", genero: "Mulher" },
+    { id: "school_bottom", nome: "Saia Escolar", preco: 150, tipo: "roupaBottom", valor: "Saia Escolar", cor: "#1e3799", genero: "Mulher" },
+    { id: "bunny_top", nome: "Colete de Coelhinha (Bunny)", preco: 400, tipo: "roupaTop", valor: "Colete Bunny", cor: "#111111", genero: "Mulher" },
+    { id: "bunny_bottom", nome: "Meia-calça de Coelhinha", preco: 150, tipo: "roupaBottom", valor: "Meia Bunny", cor: "#111111", genero: "Mulher" },
+    { id: "police_top", nome: "Camisa de Polícia", preco: 220, tipo: "roupaTop", valor: "Uniforme Policial", cor: "#1e272e" },
+    { id: "police_bottom", nome: "Calça Tática de Polícia", preco: 180, tipo: "roupaBottom", valor: "Calça Policial", cor: "#1e272e" }
   ],
   intimasGerais: [
     { id: "intima_branca", nome: "Conjunto Algodão Branco", preco: 40, tipo: "roupaIntima", valor: true, cor: "#ffffff" },
