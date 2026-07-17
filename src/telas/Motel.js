@@ -4,11 +4,15 @@ import { calcularModificadorFetiche } from '../utils/fetchesSystem';
 import { calcularGravidez, tiposContraceptivos } from '../utils/reproductionSystem';
 import { obterBonusIntimacao } from '../utils/hotelSystem';
 
-export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, setTelaAtual, categoriaHotel = "3" }) {
+export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, setTelaAtual, categoriaHotel = "3", setParceiroMotel, setContatosNPCs }) {
   const [fase, setFase] = useState("preliminares");
   const [excitacaoPlayer, setExcitacaoPlayer] = useState(15);
   const [excitacaoNPC, setExcitacaoNPC] = useState(npc?.libido || 25);
   const [estaminaIntima, setEstaminaIntima] = useState(100);
+  const [orgasmosNPC, setOrgasmosNPC] = useState(0);
+  const [orgasmosPlayer, setOrgasmosPlayer] = useState(0);
+  const [recentesClimaxNPC, setRecentesClimaxNPC] = useState([]);
+  const [recentesClimaxPlayer, setRecentesClimaxPlayer] = useState([]);
   const [log, setLog] = useState(["Você trancou a porta. O quarto respira sensualidade com luzes em neon."].concat(
     npc?.fetiches?.length > 0 ? [`💕 ${npc.nome} possui fetiches: ${npc.fetiches.map(f => f.nome).join(", ")}`] : []
   ));
@@ -17,7 +21,54 @@ export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, set
   const bonusIntimacao = obterBonusIntimacao(categoriaHotel);
 
   if (!npc) {
-    return <div className="container"><div className="card"><button onClick={() => setTelaAtual("mapa")}>Voltar</button></div></div>;
+    return (
+      <div className="container">
+        <div className="card" style={{ backgroundColor: '#090514', color: '#fff', border: '2px solid #60a5fa', padding: '25px', textAlign: 'center', minHeight: '400px' }}>
+          <h1 style={{ color: '#60a5fa', textShadow: '0 0 10px #60a5fa', marginBottom: '20px' }}>Hospedagem Solo</h1>
+          <h3 style={{ color: '#cbd5e1' }}>Você está hospedado em uma suíte {categoriaHotel}⭐ no Hotel de {mundo[player.cidade_id]?.nome || "Metrópole"}</h3>
+          
+          <div style={{ backgroundColor: '#130d24', border: '1px solid #334155', padding: '15px', borderRadius: '8px', margin: '20px auto', maxWidth: '400px', fontSize: '13px', color: '#f472b6' }}>
+            Aproveite a suíte para descansar e repor suas energias longe de casa.
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '300px', margin: '0 auto' }}>
+            <button
+              onClick={() => {
+                if (avancarTempo(8, 0)) {
+                  setPlayer(prev => ({ ...prev, energia: 100 }));
+                  alert("Você dormiu profundamente e acordou revigorado com 100% de energia!");
+                }
+              }}
+              style={{ padding: '12px', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+            >
+              🛌 Dormir (+8h | +100% Energia)
+            </button>
+
+            <button
+              onClick={() => {
+                if (avancarTempo(2, 0)) {
+                  setPlayer(prev => ({ ...prev, energia: Math.min(100, prev.energia + 35) }));
+                  alert("Você tomou um banho relaxante e assistiu TV. Recuperou 35% de energia!");
+                }
+              }}
+              style={{ padding: '12px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+            >
+              🚿 Relaxar (+2h | +35% Energia)
+            </button>
+
+            <button
+              onClick={() => {
+                if (setParceiroMotel) setParceiroMotel(null);
+                setTelaAtual("mapa");
+              }}
+              style={{ padding: '12px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}
+            >
+              🚶 Sair do Quarto / Voltar ao Mapa
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const executarAcaoSexual = (acao) => {
@@ -37,6 +88,20 @@ export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, set
     let custoEstamina = 10;
     let textoAcao = "";
     let tipoAcao = "generico";
+
+    if (["beijo", "massagem_corpo", "despir", "massagem_seios"].includes(acao)) {
+      tipoAcao = "preliminar";
+    } else if (["oral_enviado", "oral_recebido", "mutuos_oral"].includes(acao)) {
+      tipoAcao = "oral";
+    } else if (["missionario", "de_quatro", "por_cima", "cavaleira_reversa", "parede", "sentado"].includes(acao)) {
+      tipoAcao = "penetracao";
+    } else if (["anal_inicio"].includes(acao)) {
+      tipoAcao = "preparo_anal";
+    } else if (["anal", "anal_de_quatro", "anal_reverso", "anal_parede"].includes(acao)) {
+      tipoAcao = "penetracao_anal";
+    } else if (["footjob"].includes(acao)) {
+      tipoAcao = "fetiche";
+    }
 
     const modificadorPericia = Math.max(0.5, (player.periciaSexual || 15) / 40);
     const sensitividadeNpc = (npc.sensibilidade || 50) / 50;
@@ -226,18 +291,77 @@ export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, set
     const novoPlayer = Math.min(100, excitacaoPlayer + ganhoPlayer);
     const novoNPC = Math.min(100, excitacaoNPC + ganhoNPC);
 
-    setExcitacaoPlayer(novoPlayer);
-    setExcitacaoNPC(novoNPC);
-    setEstaminaIntima(e => Math.max(0, e - custoEstamina));
-    setLog(prev => [textoAcao, ...prev]);
+    let msgExtra = "";
+
+    let finalExcitacaoNPC = novoNPC;
+    let finalExcitacaoPlayer = novoPlayer;
+
+    // Verificar clímax da NPC feminina
+    if (npc?.genero === "Mulher" && novoNPC >= 100) {
+      finalExcitacaoNPC = 80; // reseta para 80%
+      const novosOrgasmos = orgasmosNPC + 1;
+      setOrgasmosNPC(novosOrgasmos);
+      
+      const novoHist = [...recentesClimaxNPC, true].slice(-5);
+      setRecentesClimaxNPC(novoHist);
+      
+      const count3 = novoHist.filter(x => x === true).length;
+      if (count3 >= 3) {
+        msgExtra += ` 🌊 SQUIRT E ORGASMO MÚLTIPLO! ${npc.nome} treme descontroladamente, jorrando prazer enquanto atinge múltiplos orgasmos seguidos!`;
+      } else {
+        msgExtra += ` 💦 ${npc.nome} arqueia as costas, com os dedos dos pés encolhidos, soltando gemidos agudos e tremores intensos num orgasmo delicioso! (Orgasmo #${novosOrgasmos})`;
+      }
+    } else if (npc?.genero === "Mulher") {
+      const novoHist = [...recentesClimaxNPC, false].slice(-5);
+      setRecentesClimaxNPC(novoHist);
+    }
+
+    // Verificar clímax da Player feminina
+    if (player?.genero === "Mulher" && novoPlayer >= 100) {
+      finalExcitacaoPlayer = 80; // reseta para 80%
+      const novosOrgasmos = orgasmosPlayer + 1;
+      setOrgasmosPlayer(novosOrgasmos);
+      
+      const novoHist = [...recentesClimaxPlayer, true].slice(-5);
+      setRecentesClimaxPlayer(novoHist);
+      
+      const count3 = novoHist.filter(x => x === true).length;
+      if (count3 >= 3) {
+        msgExtra += ` 🌊 SQUIRT E ORGASMO MÚLTIPLO! O teu corpo feminino entra em espasmos incontroláveis de prazer extremo, jorrando em ondas consecutivas!`;
+      } else {
+        msgExtra += ` 💦 O teu corpo se contrai em espasmos deliciosos enquanto atinge um clímax feminino maravilhoso! (Orgasmo #${novosOrgasmos})`;
+      }
+    } else if (player?.genero === "Mulher") {
+      const novoHist = [...recentesClimaxPlayer, false].slice(-5);
+      setRecentesClimaxPlayer(novoHist);
+    }
+
+    setExcitacaoPlayer(finalExcitacaoPlayer);
+    setExcitacaoNPC(finalExcitacaoNPC);
+    setEstaminaIntima(e => player.godMode ? 100 : Math.max(0, e - custoEstamina));
+    
+    const textoLogFinal = msgExtra ? `${textoAcao}\n${msgExtra}` : textoAcao;
+    setLog(prev => [textoLogFinal, ...prev]);
 
     // Ganho de experiência
     if (Math.random() < 0.3) {
       setPlayer(p => ({ ...p, periciaSexual: Math.min(100, (p.periciaSexual || 15) + 1) }));
     }
 
-    // Transição automática para clímax se ambos no máximo
-    if (novoPlayer >= 100 && novoNPC >= 100) {
+    // Transição automática para clímax final se o homem atingir 100%
+    let homemAtingiuLimite = false;
+    
+    if (npc?.genero !== "Mulher" && novoNPC >= 100) {
+      homemAtingiuLimite = true;
+    }
+    if (player?.genero !== "Mulher" && novoPlayer >= 100) {
+      homemAtingiuLimite = true;
+    }
+    if (player?.genero === "Mulher" && npc?.genero === "Mulher" && finalExcitacaoPlayer >= 95 && finalExcitacaoNPC >= 95) {
+      homemAtingiuLimite = true;
+    }
+
+    if (homemAtingiuLimite) {
       setFase("climax");
     }
 
@@ -249,6 +373,21 @@ export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, set
   };
 
   const atingirClimax = () => {
+    let npcGozou = excitacaoNPC >= 90;
+    let playerGozou = excitacaoPlayer >= 90;
+
+    let novosOrgasmosNPC = orgasmosNPC;
+    let novosOrgasmosPlayer = orgasmosPlayer;
+
+    if (npcGozou) {
+      novosOrgasmosNPC += 1;
+      setOrgasmosNPC(novosOrgasmosNPC);
+    }
+    if (playerGozou) {
+      novosOrgasmosPlayer += 1;
+      setOrgasmosPlayer(novosOrgasmosPlayer);
+    }
+
     // Verificar gravidez (APENAS para mulheres em penetração vaginal)
     let gravidezOcorreu = false;
     if (player.genero === "Mulher" && player.dadosReproductivos) {
@@ -278,13 +417,37 @@ export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, set
       ? ` 🤰 AVISO: Você pode estar grávida (${tiposContraceptivos[contraceptivoUsoAtual]?.nome} teve ${Math.round((1 - tiposContraceptivos[contraceptivoUsoAtual]?.riscoPrenhez) * 100)}% de eficácia)!`
       : "";
 
+    // Narrativa personalizada baseada no gênero biológico e fetiches
+    let textoClimax = `✨ CLÍMAX AVASSALADOR! (Perícia +${ganhoXP}!)${msgGravidez}\n`;
+    if (npcGozou) {
+      if (npc.genero === "Mulher") {
+        textoClimax += ` 💦 ${npc.nome} arqueia as costas, com os dedos dos pés encolhidos e pupilas dilatadas, soltando gemidos agudos e tremores intensos por todo o corpo enquanto atinge um orgasmo avassalador!`;
+      } else {
+        textoClimax += ` 💦 ${npc.nome} solta um gemido grave e profundo, segurando seus quadris com força enquanto chega ao seu limite absoluto e descarrega todo o prazer!`;
+      }
+    }
+    if (playerGozou) {
+      if (player.genero === "Mulher") {
+        textoClimax += ` O seu corpo feminino se contrai em espasmos deliciosos de prazer, enquanto sua mente se esvai no orgasmo mais puro e intenso.`;
+      } else {
+        textoClimax += ` Você sente a onda de calor subir e se entrega ao êxtase completo, soltando toda a tensão acumulada em uma liberação intensa.`;
+      }
+    }
+
     setLog(prev => [
-      `✨ CLÍMAX AVASSALADOR! O quarto é tomado por arrepios e espasmos sincronizados enquanto ambos atingem o pico simultâneo. (Perícia +${ganhoXP}!)${msgGravidez}`,
+      textoClimax + ` (Total de Orgasmos - ${npc.nome}: ${novosOrgasmosNPC} | Seus: ${novosOrgasmosPlayer})`,
       ...prev
     ]);
   };
 
   const encerrarSessao = () => {
+    // Bônus de afeto proporcional aos orgasmos
+    const bonusAfeto = orgasmosNPC * 15 + orgasmosPlayer * 5;
+    if (bonusAfeto > 0 && setContatosNPCs) {
+      setContatosNPCs(prev => prev.map(c => c.id === npc.id ? { ...c, afeto: Math.min(100, (c.afeto || 10) + bonusAfeto) } : c));
+      alert(`💖 O encontro foi incrível! Os múltiplos orgasmos fizeram ${npc.nome} ficar mais apaixonado(a) por você (+${bonusAfeto}% de Afeto)!`);
+    }
+    if (setParceiroMotel) setParceiroMotel(null); // Reset partner!
     setTelaAtual("mapa");
   };
 

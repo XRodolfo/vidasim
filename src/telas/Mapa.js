@@ -1,6 +1,7 @@
 import React from 'react';
+import { temCasaNaCidade } from '../utils/inventorySystem';
 
-export default function Mapa({ player, setTelaAtual, avancarTempo }) {
+export default function Mapa({ player, setTelaAtual, avancarTempo, setHotelCategoria }) {
   const irPara = (tela, tempo = 15, energia = 5) => {
     if (player.energia < energia && !player.godMode) {
       alert("Estás demasiado exausto para te deslocares! Vai dormir ou descansar.");
@@ -22,7 +23,19 @@ export default function Mapa({ player, setTelaAtual, avancarTempo }) {
           <button onClick={() => irPara('quarto', 10, 2)} style={btnStyle}>🏠 A Minha Casa</button>
           <button onClick={() => irPara('imobiliaria', 20, 5)} style={btnStyle}>🏢 Imobiliária (Comprar Casas)</button>
           <button onClick={() => irPara('academia', 15, 5)} style={btnStyle}>🏋️ Academia de Treino</button>
-          <button onClick={() => irPara('motel', 20, 5)} style={btnStyle}>🏩 Motel (Encontros)</button>
+          <button 
+            onClick={() => {
+              if (temCasaNaCidade(player.inventario, player.cidade_id)) {
+                setHotelCategoria(null);
+                irPara('motel', 20, 5);
+              } else {
+                setTelaAtual('hotelSelector');
+              }
+            }} 
+            style={btnStyle}
+          >
+            🏩 Motel (Encontros)
+          </button>
         </div>
       </div>
 
@@ -51,6 +64,16 @@ export default function Mapa({ player, setTelaAtual, avancarTempo }) {
           </button>
           <button onClick={() => irPara('banco', 15, 2)} style={{ ...btnStyle, backgroundColor: '#f1c40f', color: '#000', fontWeight: 'bold' }}>
             🏦 Banco Global (Empréstimos, Financiamentos & Investimentos)
+          </button>
+        </div>
+      </div>
+
+      {/* AEROPORTO E VIAGENS */}
+      <div className="setor-mapa" style={{ backgroundColor: '#1e272e', padding: '15px', borderRadius: '10px', marginBottom: '15px' }}>
+        <h3 style={{ margin: '0 0 10px 0', color: '#9b59b6' }}>✈️ Viagens & Fronteiras</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
+          <button onClick={() => irPara('aeroporto', 40, 10)} style={{ ...btnStyle, backgroundColor: '#9b59b6', fontWeight: 'bold' }}>
+            🛫 Aeroporto Internacional (Mudar de Cidade & Nova Cultura)
           </button>
         </div>
       </div>

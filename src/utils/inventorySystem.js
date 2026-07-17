@@ -82,7 +82,14 @@ export const comprarImovel = (inventario, tipoImovel, player) => {
   if (!imovel) return { erro: "Imóvel não encontrado" };
   if (player.dinheiro < imovel.preco) return { erro: "Dinheiro insuficiente" };
   
-  const novoImovel = { ...imovel, data_compra: Date.now(), id: `imovel_${Date.now()}` };
+  const novoImovel = { 
+    ...imovel, 
+    tipo: tipoImovel, 
+    data_compra: Date.now(), 
+    id: `imovel_${Date.now()}`, 
+    cidade: player.cidade_id,
+    diaCompra: player.dia || 1
+  };
   return {
     sucesso: true,
     imovel: novoImovel,

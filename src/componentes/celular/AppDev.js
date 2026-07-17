@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { todasAsFetiches } from '../../utils/fetchesSystem';
 
 export default function AppDev({ player, setPlayer, contatosNPCs, setContatosNPCs, voltarHome }) {
   const [senhaInput, setSenhaInput] = useState("");
@@ -63,6 +64,31 @@ export default function AppDev({ player, setPlayer, contatosNPCs, setContatosNPC
                 
                 <label>Libido / Tesão Base ({npc.libido || 30})</label> 
                 <input type="range" min="1" max="100" value={npc.libido || 30} onChange={e => atualizarNPC(npc.id, {libido: parseInt(e.target.value)})} style={{width: '100%'}}/>
+
+                <label style={{ marginTop: '8px', display: 'block' }}>Fetiches:</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', margin: '5px 0 10px 0' }}>
+                  {todasAsFetiches.map(fet => {
+                    const temFetiche = npc.fetiches?.some(f => f.id === fet.id);
+                    return (
+                      <label key={fet.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: '#38bdf8', cursor: 'pointer' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={temFetiche} 
+                          onChange={() => {
+                            let novosFetiches = npc.fetiches ? [...npc.fetiches] : [];
+                            if (temFetiche) {
+                              novosFetiches = novosFetiches.filter(f => f.id !== fet.id);
+                            } else {
+                              novosFetiches.push(fet);
+                            }
+                            atualizarNPC(npc.id, { fetiches: novosFetiches });
+                          }}
+                        />
+                        {fet.nome}
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             ))}
 

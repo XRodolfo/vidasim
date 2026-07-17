@@ -1,4 +1,6 @@
 import { culturas } from '../dados';
+import { gerarFetchesAleatorias } from './fetchesSystem';
+import { inicializarDadosReproductivos } from './reproductionSystem';
 
 export const gerarNPC = (player, mundo) => {
   const etnias = ["Latina", "Asiática", "Negra", "Mista", "Branca"];
@@ -45,10 +47,26 @@ export const gerarNPC = (player, mundo) => {
   if (estadoCivilSorteado === "Casado(a)") bioFinal = "Apenas contatos profissionais. 🤫";
   if (estadoCivilSorteado === "Relação Aberta") bioFinal = `Vivo o amor livremente junto com ${nomeConjuge.split(' ')[0]} ✨`;
 
+  const idadeNPC = Math.floor(Math.random() * 40) + 18;
+
+  let eVirgem = false;
+  if (estadoCivilSorteado === "Solteiro(a)") {
+    if (generoNPC === "Mulher") {
+      if (idadeNPC <= 21) eVirgem = Math.random() < 0.40;
+      else if (idadeNPC <= 25) eVirgem = Math.random() < 0.15;
+      else if (idadeNPC <= 30) eVirgem = Math.random() < 0.05;
+      else eVirgem = Math.random() < 0.01;
+    } else {
+      if (idadeNPC <= 21) eVirgem = Math.random() < 0.30;
+      else if (idadeNPC <= 25) eVirgem = Math.random() < 0.10;
+      else eVirgem = Math.random() < 0.02;
+    }
+  }
+
   return {
     id: Math.random().toString(),
     nome: `${primeiroNome} ${sobrenome}`,
-    idade: Math.floor(Math.random() * 40) + 18,
+    idade: idadeNPC,
     genero: generoNPC, etnia: etniaNPC,
     estadoCivil: estadoCivilSorteado, conjuge: nomeConjuge,
     profissao: profissao, bio: bioFinal,
@@ -58,6 +76,10 @@ export const gerarNPC = (player, mundo) => {
     penis_cm: generoNPC === "Homem" ? 12 + Math.floor(Math.random() * 10) : 0,
     cabelo: ["Curtos", "Longos", "Cacheados", "Careca"][Math.floor(Math.random() * 4)],
     corCabelo: ["#2c1b18", "#111111", "#e67e22", "#f1c40f"][Math.floor(Math.random() * 4)],
-    roupaIntima: true, roupaTop: "Camiseta", roupaBottom: "Calça", corRoupaTop: "#3498db", corRoupaBottom: "#111111"
+    roupaIntima: true, roupaTop: "Camiseta", roupaBottom: "Calça", corRoupaTop: "#3498db", corRoupaBottom: "#111111",
+    fetiches: gerarFetchesAleatorias(),
+    virgem: eVirgem,
+    sensibilidade: 30 + Math.random() * 40,
+    dadosReproductivos: inicializarDadosReproductivos()
   };
 };

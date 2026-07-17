@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Avatar from '../componentes/Avatar';
 import { obterComotos, executarAtividade, calcularCorQualidade } from '../utils/casasSystem';
 
 export default function Quarto({ player, setPlayer, mundo, t, salvarJogo, dormir, avancarTempo, setTelaAtual, contatosNPCs = [], setContatosNPCs }) {
-  const [imovelAtual] = useState(player.inventario?.imoveis?.[0] || { tipo: "apartamento_simples", nome: t?.quarto || "Meu Quarto" });
+  const imovelAtual = useMemo(() => {
+    return player.inventario?.imoveis?.find(im => im.tipo === player.casa?.tipo) || { tipo: "apartamento_simples", nome: player.casa?.nome || t?.quarto || "Meu Quarto", qualidade: 1 };
+  }, [player.inventario?.imoveis, player.casa, t]);
   const [comodoAtual, setComodoAtual] = useState(null);
   const [msgDomestica, setMsgDomestica] = useState("");
   const comodosDisponiveis = obterComotos(imovelAtual.tipo);
@@ -85,6 +87,7 @@ export default function Quarto({ player, setPlayer, mundo, t, salvarJogo, dormir
 
           <div style={{ flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button onClick={() => setTelaAtual("celular")} style={{ padding: '14px', backgroundColor: '#334155', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}>📱 Abrir Telemóvel</button>
+            <button onClick={() => setTelaAtual("hotelSelector")} style={{ padding: '14px', backgroundColor: '#ec4899', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}>🏩 Procurar Hotel/Motel</button>
             <button onClick={() => setTelaAtual("mapa")} style={{ padding: '14px', backgroundColor: '#f1c40f', color: '#000', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}>🚪 Sair para a Cidade</button>
           </div>
         </div>

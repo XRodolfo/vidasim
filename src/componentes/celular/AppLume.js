@@ -7,7 +7,22 @@ export default function AppLume({ player, setPlayer, mundo, contatosNPCs, setCon
   const [perfilTinder, setPerfilTinder] = useState(null);
 
   useEffect(() => {
-    if (!perfilTinder) setPerfilTinder(gerarNPC(player, mundo));
+    if (!perfilTinder) {
+      const min = player.prefIdadeMin || 18;
+      const max = player.prefIdadeMax || 60;
+      let npc = null;
+      let tentativas = 0;
+      while (tentativas < 50) {
+        const candidato = gerarNPC(player, mundo);
+        if (candidato.idade >= min && candidato.idade <= max) {
+          npc = candidato;
+          break;
+        }
+        tentativas++;
+      }
+      if (!npc) npc = gerarNPC(player, mundo);
+      setPerfilTinder(npc);
+    }
   }, [perfilTinder, player, mundo]);
 
   const acaoTinder = (deuMatch) => {
@@ -20,7 +35,7 @@ export default function AppLume({ player, setPlayer, mundo, contatosNPCs, setCon
         alert("Deslizou para a direita, mas não deu Match... ainda.");
       }
     }
-    setPerfilTinder(gerarNPC(player, mundo));
+    setPerfilTinder(null);
   };
 
   return (
@@ -47,20 +62,54 @@ export default function AppLume({ player, setPlayer, mundo, contatosNPCs, setCon
               <button onClick={() => acaoTinder(false)} style={{width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#334155', fontSize: '24px', cursor: 'pointer', border: 'none'}}>❌</button>
               <button onClick={() => acaoTinder(true)} style={{width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#10b981', fontSize: '24px', cursor: 'pointer', border: 'none'}}>💚</button>
            </div>
-        </div>
+         </div>
       )}
 
       {abaLume === "filtros" && (
-        <div style={{backgroundColor: '#1e293b', padding: '15px', borderRadius: '10px'}}>
+        <div style={{backgroundColor: '#1e293b', padding: '15px', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '15px'}}>
            <h3 style={{color: '#fb7185', margin: '0 0 15px 0'}}>Preferências do Lume</h3>
            <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px' }}>
               Quero ver perfis de:
-              <select value={player.preferenciaBusca} onChange={(e) => setPlayer({ ...player, preferenciaBusca: e.target.value })} style={{ padding: '10px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '5px' }}>
+              <select value={player.preferenciaBusca || "Ambos"} onChange={(e) => setPlayer({ ...player, preferenciaBusca: e.target.value })} style={{ padding: '10px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '5px' }}>
                 <option value="Mulheres">Mulheres</option>
                 <option value="Homens">Homens</option>
                 <option value="Ambos">Ambos</option>
               </select>
             </label>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', flex: 1 }}>
+                Idade Mínima:
+                <input 
+                  type="number" 
+                  min="18" 
+                  max="80" 
+                  value={player.prefIdadeMin || 18} 
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 18;
+                    setPlayer({ ...player, prefIdadeMin: val });
+                    setPerfilTinder(null);
+                  }} 
+                  style={{ padding: '10px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '5px' }} 
+                />
+              </label>
+
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px', flex: 1 }}>
+                Idade Máxima:
+                <input 
+                  type="number" 
+                  min="18" 
+                  max="80" 
+                  value={player.prefIdadeMax || 60} 
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 60;
+                    setPlayer({ ...player, prefIdadeMax: val });
+                    setPerfilTinder(null);
+                  }} 
+                  style={{ padding: '10px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #334155', borderRadius: '5px' }} 
+                />
+              </label>
+            </div>
         </div>
       )}
     </div>

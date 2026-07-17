@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { todosNegocios } from '../utils/businessSystem';
 
 export default function DistritoComercial({ player = {}, setPlayer, setTelaAtual, avancarTempo }) {
   const [aba, setAba] = useState('servicos');
@@ -44,6 +45,7 @@ export default function DistritoComercial({ player = {}, setPlayer, setTelaAtual
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '1px solid #555', paddingBottom: '10px' }}>
         <button onClick={() => setAba('servicos')} style={aba === 'servicos' ? abaAtiva : abaInativa}>🏥 Serviços & Saúde</button>
         <button onClick={() => setAba('escritorios')} style={aba === 'escritorios' ? abaAtiva : abaInativa}>🏢 Empregos Corporativos</button>
+        <button onClick={() => setAba('negocios')} style={aba === 'negocios' ? { ...abaAtiva, backgroundColor: '#f1c40f', color: '#000' } : abaInativa}>👑 Negócios</button>
       </div>
 
       {aba === 'servicos' && (
@@ -67,6 +69,7 @@ export default function DistritoComercial({ player = {}, setPlayer, setTelaAtual
         </div>
       )}
 
+      {/* CONTEÚDO: EMPREGOS CORPORATIVOS */}
       {aba === 'escritorios' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <p>O centro financeiro exige alta **Inteligência**:</p>
@@ -82,6 +85,47 @@ export default function DistritoComercial({ player = {}, setPlayer, setTelaAtual
             <div><h4>Gestor Executivo de Projetos</h4><small>Requer: 75 Inteligência | Turno: 8 horas</small></div>
             <button onClick={() => trabalharCorporativo('Gestor Executivo', 75, 1100, 480, 65)} style={btnAcao}>Trabalhar (R$ 1.100)</button>
           </div>
+        </div>
+      )}
+
+      {/* CONTEÚDO: INVESTIMENTOS EM NEGÓCIOS */}
+      {aba === 'negocios' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          {todosNegocios.filter(n => n.local === 'distritoComercial').map(neg => {
+            const meu = player.negocios?.[neg.id];
+            return (
+              <div key={neg.id} style={{ backgroundColor: '#2f3640', padding: '15px', borderRadius: '8px', border: meu ? '2px solid #f1c40f' : '1px solid #444' }}>
+                <h3 style={{ color: meu ? '#f1c40f' : '#fff', margin: '0 0 10px 0' }}>{meu ? '👑 ' : ''}{neg.nome}</h3>
+                <p style={{ fontSize: '12px', color: '#ccc', marginBottom: '10px' }}>{neg.desc}</p>
+                {meu ? (
+                  <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '13px' }}>
+                    ✅ Adquirido! Administre este negócio e recolha seus lucros usando o aplicativo Assets/Negócios do seu Celular.
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      if (player.dinheiro < neg.preco) {
+                        alert("Saldo insuficiente!");
+                        return;
+                      }
+                      setPlayer(prev => ({
+                        ...prev,
+                        dinheiro: prev.dinheiro - neg.preco,
+                        negocios: {
+                          ...(prev.negocios || {}),
+                          [neg.id]: { ...neg, nivel: 1, funcionarios: {}, marketing: 1, cofre: 0 }
+                        }
+                      }));
+                      alert(`🎉 Adquiriste ${neg.nome}!`);
+                    }} 
+                    style={{ width: '100%', padding: '10px', backgroundColor: '#27ae60', color: '#fff', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    Adquirir Empresa por R$ {neg.preco.toLocaleString()}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 

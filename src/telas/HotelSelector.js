@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { categoriasHotel, nomeMoteluario, descricaoHotelCompleta, obterBonusIntimacao } from '../utils/hotelSystem';
+import { categoriasHotel } from '../utils/hotelSystem';
 
-export default function HotelSelector({ player, setPlayer, setTelaAtual, setParceiroMotel, setHotelCategoria }) {
+export default function HotelSelector({ player, setPlayer, setTelaAtual, setParceiroMotel, setHotelCategoria, npc }) {
   const [selectedHotel, setSelectedHotel] = useState("3");
 
   const aluguelHotel = () => {
@@ -18,8 +18,13 @@ export default function HotelSelector({ player, setPlayer, setTelaAtual, setParc
     // Salva categoria do hotel
     if (setHotelCategoria) setHotelCategoria(selectedHotel);
     
-    // Vai para o diálogo de contraceptivo antes do motel
-    setTelaAtual("contraceptivoDialog");
+    if (npc) {
+      // Vai para o diálogo de contraceptivo antes do motel
+      setTelaAtual("contraceptivoDialog");
+    } else {
+      // Hospedagem solo, vai direto para o hotel
+      setTelaAtual("motel");
+    }
   };
 
   const hotelAtualsizeSelecionado = categoriasHotel[selectedHotel];

@@ -77,6 +77,7 @@ export default function Celular({ player, setPlayer, mundo, t, contatosNPCs, set
         {appAtivo === "inventario" && (
             <AppInventario 
                 player={player} 
+                setPlayer={setPlayer}
                 mundo={mundo} 
                 voltarHome={() => setAppAtivo("home")} 
             />

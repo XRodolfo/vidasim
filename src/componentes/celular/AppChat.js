@@ -44,7 +44,21 @@ export default function AppChat({ player, setPlayer, mundo, contatosNPCs, setCon
             {contatosNPCs.map(npc => (
               <div key={npc.id} onClick={() => setNpcAtivoId(npc.id)} style={{backgroundColor: '#1e293b', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px'}}>
                 <div style={{width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#ececec', overflow: 'hidden'}}><div style={{transform: 'scale(1.7)', transformOrigin: 'top center'}}><Avatar player={npc} mundo={mundo}/></div></div>
-                <div style={{flex: 1}}><strong>{npc.nome}</strong><br/><span style={{fontSize: '11px', color: '#94a3b8'}}>{npc.profissao} | Afeto: {npc.afeto}%</span></div>
+                <div style={{flex: 1}}>
+                  <strong>{npc.nome}</strong><br/>
+                  <span style={{fontSize: '11px', color: '#cbd5e1'}}>{npc.idade} anos | {npc.estadoCivil}</span><br/>
+                  <span style={{fontSize: '11px', color: '#94a3b8'}}>{npc.profissao} | Afeto: {npc.afeto}%</span>
+                  {npc.fetiches && npc.fetiches.length > 0 && (
+                    <div style={{ color: '#ec4899', fontSize: '11px', marginTop: '2px' }}>
+                      💕 Fetiches: {npc.fetiches.map(f => f.nome).join(", ")}
+                    </div>
+                  )}
+                  {npc.virgem && (
+                    <div style={{ color: '#fbbf24', fontSize: '11px', marginTop: '2px' }}>
+                      ✨ Virgem - Primeira vez será especial
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -64,6 +78,12 @@ export default function AppChat({ player, setPlayer, mundo, contatosNPCs, setCon
           <p style={{margin: '0 0 10px 0', fontStyle: 'italic', borderBottom: '1px solid #334155', paddingBottom: '10px'}}>"{npcAtivo.bio}"</p>
           <span><strong>Estado Civil:</strong> {npcAtivo.estadoCivil}</span>
           <span><strong>Mora com você:</strong> {npcAtivo.mora_junto ? "Sim 💑" : "Não"}</span>
+          {npcAtivo.fetiches && npcAtivo.fetiches.length > 0 && (
+            <span style={{ color: '#ec4899' }}><strong>💕 Fetiches:</strong> {npcAtivo.fetiches.map(f => f.nome).join(", ")}</span>
+          )}
+          {npcAtivo.virgem && (
+            <span style={{ color: '#fbbf24' }}><strong>✨ Virgem:</strong> Primeira vez será especial</span>
+          )}
         </div>
       </div>
     );

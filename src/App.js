@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
 import { textos, mundoInicial, profissoes } from './dados';
-import { inicializarDadosReproductivos } from './utils/reproductionSystem';
+import { inicializarDadosReproductivos, avancarGravidez } from './utils/reproductionSystem';
+import { processarRendimentoNegocios } from './utils/businessSystem';
 import { inicializarRelacionamento } from './utils/relationshipSystem';
 
 import DistritoComercial from './telas/DistritoComercial';
@@ -26,6 +27,8 @@ import Trabalho from './telas/Trabalho';
 import Restaurante from './telas/Restaurante';
 import Banco from './telas/Banco';
 import HUD from './componentes/HUD';
+import HotelSelector from './telas/HotelSelector';
+import Loja from './telas/Loja';
 
 function App() {
   const [idioma] = useState("pt");
@@ -35,6 +38,7 @@ function App() {
   const [mundo, setMundo] = useState(mundoInicial);
   const [contatosNPCs, setContatosNPCs] = useState([]); 
   const [parceiroMotel, setParceiroMotel] = useState(null);
+  const [hotelCategoria, setHotelCategoria] = useState("3");
   
   const [player, setPlayer] = useState({
     nome: "Alex", idade: 18, genero: "Mulher",
@@ -84,26 +88,65 @@ function App() {
     let novaHora = player.hora + horas; 
     let novoDia = player.dia; 
     let novoDinheiro = player.dinheiro;
+    let diasPassados = 0;
     
     while (novaHora >= 24) {
       novaHora -= 24; 
       novoDia += 1;
+      diasPassados += 1;
       const custoDiario = Math.round(15 * mundo[player.cidade_id].custo_vida);
       if (!player.godMode) novoDinheiro -= custoDiario; 
     }
     
-    setPlayer(prev => ({ ...prev, hora: novaHora, dia: novoDia, dinheiro: novoDinheiro, energia: prev.godMode ? 100 : Math.max(0, prev.energia - custoEnergia) }));
+    setPlayer(prev => {
+      let novosDadosReprod = prev.dadosReproductivos;
+      if (diasPassados > 0 && novosDadosReprod) {
+        novosDadosReprod = avancarGravidez({ ...novosDadosReprod }, diasPassados);
+        if (novosDadosReprod.mensagem) {
+          alert(novosDadosReprod.mensagem);
+          delete novosDadosReprod.mensagem;
+        }
+      }
+      let novosNegocios = prev.negocios;
+      if (diasPassados > 0) {
+        novosNegocios = processarRendimentoNegocios(prev.negocios, diasPassados);
+      }
+      return { 
+        ...prev, 
+        hora: novaHora, 
+        dia: novoDia, 
+        dinheiro: novoDinheiro, 
+        energia: prev.godMode ? 100 : Math.max(0, prev.energia - custoEnergia),
+        dadosReproductivos: novosDadosReprod,
+        negocios: novosNegocios
+      };
+    });
     return true;
   };
 
   const dormir = () => {
     const custoDiario = Math.round(15 * mundo[player.cidade_id].custo_vida);
-    setPlayer(prev => ({ 
-      ...prev, dia: prev.dia + 1, hora: 8, 
-      dinheiro: prev.godMode ? prev.dinheiro : prev.dinheiro - custoDiario, 
-      energia: 100, trabalhouHoje: false, treinosHoje: 0,
-      poupanca: prev.poupanca ? Math.round(prev.poupanca * 1.005) : 0
-    }));
+    setPlayer(prev => {
+      let novosDadosReprod = prev.dadosReproductivos;
+      if (novosDadosReprod) {
+        novosDadosReprod = avancarGravidez({ ...novosDadosReprod }, 1);
+        if (novosDadosReprod.mensagem) {
+          alert(novosDadosReprod.mensagem);
+          delete novosDadosReprod.mensagem;
+        }
+      }
+      const novosNegocios = processarRendimentoNegocios(prev.negocios, 1);
+      return { 
+        ...prev, 
+        dia: prev.dia + 1, 
+        hora: 8, 
+        dinheiro: prev.godMode ? prev.dinheiro : prev.dinheiro - custoDiario, 
+        energia: 100, trabalhouHoje: false, treinosHoje: 0,
+        poupanca: prev.poupanca ? Math.round(prev.poupanca * 1.005) : 0,
+        dadosReproductivos: novosDadosReprod,
+        negocios: novosNegocios
+      };
+    });
     alert("Um novo dia começou!");
   };
 
@@ -125,14 +168,25 @@ function App() {
     if (telaAtual === "criadorCidade") return <CriadorCidade mundo={mundo} setMundo={setMundo} t={t} setTelaAtual={setTelaAtual} />;
 
     if (telaAtual === "quarto") return <Quarto player={player} setPlayer={setPlayer} mundo={mundo} t={t} salvarJogo={salvarJogo} dormir={dormir} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
-    if (telaAtual === "mapa") return <Mapa player={player} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
+    if (telaAtual === "mapa") return <Mapa player={player} mundo={mundo} t={t} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} setHotelCategoria={setHotelCategoria} />;
     if (telaAtual === "agenciaEmprego") return <Agencia player={player} setPlayer={setPlayer} mundo={mundo} t={t} profissoes={profissoes} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
     if (telaAtual === "aeroporto") return <Aeroporto player={player} setPlayer={setPlayer} mundo={mundo} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
     if (telaAtual === "lojaVeiculos") return <LojaVeiculos player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} />;
     if (telaAtual === "imobiliaria") return <Imobiliaria player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} />;
     if (telaAtual === "distritoComercial") return <DistritoComercial player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} />;
-    if (telaAtual === "distritoNoturno") return <DistritoNoturno player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} />;
-    if (telaAtual === "motel") return <Motel player={player} setPlayer={setPlayer} mundo={mundo} npc={parceiroMotel} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} />;
+    if (telaAtual === "distritoNoturno") return <DistritoNoturno player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} avancarTempo={avancarTempo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} mundo={mundo} />;
+    if (telaAtual === "motel") return <Motel player={player} setPlayer={setPlayer} mundo={mundo} npc={parceiroMotel} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} categoriaHotel={hotelCategoria} setParceiroMotel={setParceiroMotel} setContatosNPCs={setContatosNPCs} />;
+    if (telaAtual === "hotelSelector") return (
+      <HotelSelector 
+        player={player} 
+        setPlayer={setPlayer}
+        setTelaAtual={setTelaAtual}
+        setParceiroMotel={setParceiroMotel}
+        setHotelCategoria={setHotelCategoria}
+        npc={parceiroMotel}
+      />
+    );
+    if (telaAtual === "loja") return <Loja player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} />;
     if (telaAtual === "contraceptivoDialog") return <ContraceptivoDialog player={player} setPlayer={setPlayer} npc={parceiroMotel} setTelaAtual={setTelaAtual} />;
     if (telaAtual === "lojaRoupas") return <LojaRoupas player={player} setPlayer={setPlayer} setTelaAtual={setTelaAtual} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;
     if (telaAtual === "prefeitura") return <Prefeitura player={player} setPlayer={setPlayer} avancarTempo={avancarTempo} setTelaAtual={setTelaAtual} mundo={mundo} contatosNPCs={contatosNPCs} setContatosNPCs={setContatosNPCs} />;

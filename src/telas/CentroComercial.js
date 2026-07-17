@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { todosNegocios } from '../utils/businessSystem';
 
 export default function CentroComercial({ player, setPlayer, setTelaAtual, avancarTempo }) {
   const [aba, setAba] = useState('lojas');
@@ -46,6 +47,7 @@ export default function CentroComercial({ player, setPlayer, setTelaAtual, avanc
         <button onClick={() => setAba('lojas')} style={aba === 'lojas' ? abaAtiva : abaInativa}>🛍️ Lojas & Departamentos</button>
         <button onClick={() => setAba('alimentacao')} style={aba === 'alimentacao' ? abaAtiva : abaInativa}>🍔 Praça de Alimentação</button>
         <button onClick={() => setAba('empregos')} style={aba === 'empregos' ? abaAtiva : abaInativa}>💼 Empregos no Comércio</button>
+        <button onClick={() => setAba('negocios')} style={aba === 'negocios' ? { ...abaAtiva, backgroundColor: '#f1c40f', color: '#000' } : abaInativa}>👑 Negócios</button>
       </div>
 
       {/* CONTEÚDO: LOJAS */}
@@ -86,6 +88,47 @@ export default function CentroComercial({ player, setPlayer, setTelaAtual, avanc
           <button onClick={trabalharVendedor} style={{ ...btnAcao, width: '100%', padding: '12px', fontSize: '16px' }}>
             Trabalhar Turno de 4 Horas (-30 Energia)
           </button>
+        </div>
+      )}
+
+      {/* CONTEÚDO: NEGÓCIOS DO SHOPPING */}
+      {aba === 'negocios' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          {todosNegocios.filter(n => n.local === 'centroComercial').map(neg => {
+            const meu = player.negocios?.[neg.id];
+            return (
+              <div key={neg.id} style={{ backgroundColor: '#2f3640', padding: '15px', borderRadius: '8px', border: meu ? '2px solid #f1c40f' : '1px solid #444' }}>
+                <h3 style={{ color: meu ? '#f1c40f' : '#fff', margin: '0 0 10px 0' }}>{meu ? '👑 ' : ''}{neg.nome}</h3>
+                <p style={{ fontSize: '12px', color: '#ccc', marginBottom: '10px' }}>{neg.desc}</p>
+                {meu ? (
+                  <div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '13px' }}>
+                    ✅ Adquirido! Administre este negócio e recolha seus lucros usando o aplicativo Assets/Negócios do seu Celular.
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      if (player.dinheiro < neg.preco) {
+                        alert("Saldo insuficiente!");
+                        return;
+                      }
+                      setPlayer(prev => ({
+                        ...prev,
+                        dinheiro: prev.dinheiro - neg.preco,
+                        negocios: {
+                          ...(prev.negocios || {}),
+                          [neg.id]: { ...neg, nivel: 1, funcionarios: {}, marketing: 1, cofre: 0 }
+                        }
+                      }));
+                      alert(`🎉 Adquiriste ${neg.nome}!`);
+                    }} 
+                    style={{ width: '100%', padding: '10px', backgroundColor: '#27ae60', color: '#fff', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}
+                  >
+                    Adquirir Franquia por R$ {neg.preco.toLocaleString()}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
