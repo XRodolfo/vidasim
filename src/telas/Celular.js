@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import HUD from '../componentes/HUD';
 import AppChat from '../componentes/celular/AppChat';
 import AppLume from '../componentes/celular/AppLume';
 import AppDev from '../componentes/celular/AppDev';
 import AppInventario from '../componentes/celular/AppInventario';
 
-export default function Celular({ player, setPlayer, mundo, t, contatosNPCs, setContatosNPCs, avancarTempo, setTelaAtual, setParceiroMotel }) {
+export default function Celular({ player, setPlayer, mundo, t, contatosNPCs, setContatosNPCs, avancarTempo, setTelaAtual, setParceiroMotel, needs, setNeeds, needSystemRef }) {
   const [appAtivo, setAppAtivo] = useState("home"); 
 
   const osIcon = { width: '70px', height: '70px', backgroundColor: '#1e293b', borderRadius: '15px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', fontSize: '12px', color: '#fff', cursor: 'pointer', boxShadow: '0 4px 6px rgba(0,0,0,0.3)' };
 
   return (
     <div className="container">
-      <HUD player={player} mundo={mundo} t={t} />
-      
+
+
       <div className="card" style={{backgroundColor: '#0f172a', borderColor: '#334155', minHeight: '550px', position: 'relative', padding: '10px'}}>
         <div style={{display: 'flex', justifyContent: 'space-between', padding: '5px 15px', color: '#94a3b8', fontSize: '12px', borderBottom: '1px solid #1e293b', marginBottom: '15px'}}>
           <span>Operadora Sim</span>
@@ -71,6 +70,8 @@ export default function Celular({ player, setPlayer, mundo, t, contatosNPCs, set
                 contatosNPCs={contatosNPCs} 
                 setContatosNPCs={setContatosNPCs} 
                 voltarHome={() => setAppAtivo("home")} 
+                needs={needs}
+                setNeeds={setNeeds}
             />
         )}
 
@@ -80,6 +81,9 @@ export default function Celular({ player, setPlayer, mundo, t, contatosNPCs, set
                 setPlayer={setPlayer}
                 mundo={mundo} 
                 voltarHome={() => setAppAtivo("home")} 
+                needs={needs}
+                setNeeds={setNeeds}
+                needSystemRef={needSystemRef}
             />
         )}
 

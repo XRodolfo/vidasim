@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import Avatar from '../componentes/Avatar';
 import { calcularModificadorFetiche } from '../utils/fetchesSystem';
-import { calcularGravidez, tiposContraceptivos } from '../utils/reproductionSystem';
+import { tiposContraceptivos } from '../utils/reproductionSystem';
 import { obterBonusIntimacao } from '../utils/hotelSystem';
+import { calcularGravidezComParceiro } from '../utils/relationshipSystem';
 
 export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, setTelaAtual, categoriaHotel = "3", setParceiroMotel, setContatosNPCs }) {
   const [fase, setFase] = useState("preliminares");
@@ -388,10 +389,13 @@ export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, set
       setOrgasmosPlayer(novosOrgasmosPlayer);
     }
 
-    // Verificar gravidez (APENAS para mulheres em penetração vaginal)
+    // Verificar gravidez (Casais onde há pelo menos uma mulher biológica)
     let gravidezOcorreu = false;
-    if (player.genero === "Mulher" && player.dadosReproductivos) {
-      if (calcularGravidez(contraceptivoUsoAtual)) {
+    const playerFeminina = player.genero === "Mulher";
+    const npcFeminina = npc.genero === "Mulher";
+
+    if ((playerFeminina || npcFeminina) && player.dadosReproductivos) {
+      if (calcularGravidezComParceiro(player, contraceptivoUsoAtual, player.relacionamento)) {
         gravidezOcorreu = true;
         setPlayer(p => ({
           ...p,
@@ -414,7 +418,10 @@ export default function Motel({ player, setPlayer, mundo, npc, avancarTempo, set
 
     setFase("pos");
     const msgGravidez = gravidezOcorreu 
-      ? ` 🤰 AVISO: Você pode estar grávida (${tiposContraceptivos[contraceptivoUsoAtual]?.nome} teve ${Math.round((1 - tiposContraceptivos[contraceptivoUsoAtual]?.riscoPrenhez) * 100)}% de eficácia)!`
+      ? (playerFeminina 
+          ? ` 🤰 AVISO: Você pode estar grávida (${tiposContraceptivos[contraceptivoUsoAtual]?.nome} teve ${Math.round((1 - tiposContraceptivos[contraceptivoUsoAtual]?.riscoPrenhez) * 100)}% de eficácia)!`
+          : ` 🤰 AVISO: Sua parceira ${npc.nome} pode estar grávida (${tiposContraceptivos[contraceptivoUsoAtual]?.nome} teve ${Math.round((1 - tiposContraceptivos[contraceptivoUsoAtual]?.riscoPrenhez) * 100)}% de eficácia)!`
+        )
       : "";
 
     // Narrativa personalizada baseada no gênero biológico e fetiches

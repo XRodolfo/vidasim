@@ -154,14 +154,15 @@ export default function Avatar({ player, mundo }) {
     boobTransform = `matrix(${boobScaleFactor},0,0,${boobScaleFactor},${translationX},${translationY})`;
   }
 
-  // Escala da barriga grávida ou gorda
+  // Escala da barriga: baseada no IMC, só aparece com sobrepeso/obesidade
+  const imc = player.peso / Math.pow((player.altura || 165) / 100, 2);
   let bellyTransform = null;
-  if (player.peso > 75) {
-    const bellyValue = (player.peso - 75) * 150 + 2000;
-    const bellyScaleFactor = Math.min(2.2, 0.300 * Math.log(0.011 * bellyValue));
-    const translationX = -262 * (bellyScaleFactor - 1);
-    const translationY = -284 * (bellyScaleFactor - 1);
-    bellyTransform = `matrix(${bellyScaleFactor},0,0,${bellyScaleFactor},${translationX},${translationY})`;
+  if (imc >= 27.5) {
+    // IMC 27.5–30 = leve; 30–35 = moderado; >35 = grande
+    const bellyFactor = Math.min(2.2, 0.28 * Math.log(0.06 * (imc - 22) * 1000));
+    const tx = -262 * (bellyFactor - 1);
+    const ty = -284 * (bellyFactor - 1);
+    bellyTransform = `matrix(${bellyFactor},0,0,${bellyFactor},${tx},${ty})`;
   }
 
   // Escala dos testículos (balls)
@@ -400,8 +401,8 @@ export default function Avatar({ player, mundo }) {
         {/* Camada 13: Pênis */}
         {player.genero === "Homem" && nudezInferior && renderLayer(`Art_Vector_Flaccid_${penisIndex}`)}
 
-        {/* Camada 14: Barriga (Pele e Transformação) */}
-        {renderLayer("Art_Vector_Belly", bellyTransform)}
+        {/* Camada 14: Barriga (apenas se gordo ou grávida) */}
+        {bellyTransform && renderLayer("Art_Vector_Belly", bellyTransform)}
 
         {/* Camada 15: Seios (Mulheres - Base e Roupa Top/Íntima) */}
         {player.genero === "Mulher" && (

@@ -52,7 +52,7 @@ export const proporNameoro = (npc, player) => {
         nome: npc.nome,
         afeto: npc.afeto,
         genero: npc.genero,
-        data_inicio: Date.now(),
+        dia_inicio: player.dia || 1,
         gravidez_intencional: false
       }
     };
@@ -72,11 +72,12 @@ export const proporCasamento = (npc, player, relacionamento) => {
     return { erro: "Você não está namorando este(a) NPC" };
   }
 
-  // Deve estar namorando há pelo menos 20 semanas (aproximadamente 5 meses)
-  const semanasNamorando = Math.floor((Date.now() - relacionamento.parceiro.data_inicio) / (1000 * 60 * 60 * 24 * 7));
-  if (semanasNamorando < 20) {
+  // Deve estar namorando há pelo menos 8 semanas simuladas (aprox. 2 meses)
+  const diaInicio = relacionamento.parceiro.dia_inicio || 1;
+  const semanasNamorando = Math.floor((player.dia - diaInicio) / 7);
+  if (semanasNamorando < 8) {
     return { 
-      erro: `Vocês precisam namorar por mais tempo. Faltam ${20 - semanasNamorando} semanas.` 
+      erro: `Vocês precisam namorar por mais tempo. Faltam ${8 - semanasNamorando} semanas.` 
     };
   }
 
@@ -95,7 +96,7 @@ export const proporCasamento = (npc, player, relacionamento) => {
         status: statusRelacionamento.CASADO,
         parceiro: {
           ...relacionamento.parceiro,
-          data_casamento: Date.now()
+          dia_casamento: player.dia || 1
         }
       }
     };
@@ -114,8 +115,10 @@ export const conversoGravidez = (npc, player, relacionamento, querGravidez) => {
     return { erro: "Você não está em um relacionamento com este(a) NPC" };
   }
 
-  if (player.genero !== "Mulher") {
-    return { erro: "Apenas mulheres podem engravidar" };
+  const playerFeminina = player.genero === "Mulher";
+  const npcFeminina = npc.genero === "Mulher";
+  if (!playerFeminina && !npcFeminina) {
+    return { erro: "Esta conversa só faz sentido para casais onde há uma mulher biológica." };
   }
 
   if (querGravidez) {
@@ -133,7 +136,7 @@ export const conversoGravidez = (npc, player, relacionamento, querGravidez) => {
   } else {
     return {
       sucesso: true,
-      mensagem: `${npc.nome}: "Claro, ainda não é hora para bebês."`,
+      mensagem: `${npc.nome}: "Entendido, vamos continuar usando proteção."`,
       novoRelacionamento: {
         ...relacionamento,
         parceiro: {
@@ -179,22 +182,30 @@ export const calcularGravidezComParceiro = (player, contraceptivoUsado, relacion
     return false;
   }
 
-  // Se parceiro quer gravidez intencional, chance muito maior
-  if (relacionamento.parceiro.gravidez_intencional) {
-    // Lógica: com intenção, mesmo com proteção há chance (5-30% conforme proteção)
-    const riscoPorContraceptivo = {
-      "camisinha": 0.05,
-      "pilula": 0.02,
-      "diu": 0.005,
-      "nenhum": 0.35,
-      "implante": 0.01,
-      "injecao": 0.05
+  const riscoPorContraceptivo = {
+    "camisinha": 0.02,
+    "pilula": 0.01,
+    "diu": 0.002,
+    "nenhum": 0.35,
+    "implante": 0.005,
+    "injecao": 0.03
+  };
+  
+  if (relacionamento?.parceiro?.gravidez_intencional) {
+    // Gravidez intencional: chance muito maior de sucesso (mesmo com alguma falha/esquecimento)
+    const riscoIntencional = {
+      "camisinha": 0.20,
+      "pilula": 0.15,
+      "diu": 0.05,
+      "nenhum": 0.75,
+      "implante": 0.08,
+      "injecao": 0.18
     };
-    return Math.random() < (riscoPorContraceptivo[contraceptivoUsado] || 0.1);
+    return Math.random() < (riscoIntencional[contraceptivoUsado] || 0.5);
   }
 
-  // Senão, usa lógica de proteção normal
-  return false;
+  // Falha normal / gravidez acidental
+  return Math.random() < (riscoPorContraceptivo[contraceptivoUsado] || 0.35);
 };
 
 // Calcula afeto ganho em encontro
@@ -226,13 +237,11 @@ export const podeTeFilho = (player, relacionamento) => {
   if (!relacionamento?.parceiro) return false;
   if (!player.dadosReproductivos) return false;
 
-  // Só pode ter filho se está casado (ou em namoro muito longo)
-  const semanasNamorando = Math.floor(
-    (Date.now() - relacionamento.parceiro.data_inicio) / (1000 * 60 * 60 * 24 * 7)
-  );
+  const diaInicio = relacionamento.parceiro.dia_inicio || 1;
+  const semanasNamorando = Math.floor((player.dia - diaInicio) / 7);
 
   return (
     relacionamento.status === statusRelacionamento.CASADO ||
-    (relacionamento.status === statusRelacionamento.NAMORANDO && semanasNamorando > 30)
+    (relacionamento.status === statusRelacionamento.NAMORANDO && semanasNamorando > 8)
   );
 };

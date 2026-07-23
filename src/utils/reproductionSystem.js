@@ -37,7 +37,7 @@ export const inicializarDadosReproductivos = () => {
 };
 
 // Avança estado de gravidez
-export const avancarGravidez = (dados, diasPassados) => {
+export const avancarGravidez = (dados, diasPassados, playerGenero = "Mulher") => {
   if (dados.statusGravidez === statusGravidez.nao_gravida) return dados;
   
   const semanasPorDia = 1 / 7;
@@ -56,9 +56,12 @@ export const avancarGravidez = (dados, diasPassados) => {
     dados.numeroFilhos += 1;
     dados.statusGravidez = statusGravidez.apos_parto;
     dados.semanasGravidez = 0;
+    const msgParto = playerGenero === "Mulher"
+      ? `🍼 Parabéns! Você deu à luz seu filho(a) número ${dados.numeroFilhos}!`
+      : `🍼 Parabéns! Sua parceira deu à luz seu filho(a) número ${dados.numeroFilhos}!`;
     return {
       ...dados,
-      mensagem: `🍼 Parabéns! Você deu à luz seu filho(a) número ${dados.numeroFilhos}!`
+      mensagem: msgParto
     };
   }
   
@@ -66,12 +69,13 @@ export const avancarGravidez = (dados, diasPassados) => {
 };
 
 // Descrição visual do progresso de gravidez
-export const descricaoGravidez = (dados) => {
+export const descricaoGravidez = (dados, playerGenero = "Mulher") => {
   if (dados.statusGravidez === statusGravidez.nao_gravida) return "Não grávida";
-  if (dados.statusGravidez === statusGravidez.gravidez_inicial) return `🤰 Grávida (Semana ${Math.floor(dados.semanasGravidez)} - Trimestre 1)`;
-  if (dados.statusGravidez === statusGravidez.gravidez_segundo_trimestre) return `🤰 Grávida (Semana ${Math.floor(dados.semanasGravidez)} - Trimestre 2)`;
-  if (dados.statusGravidez === statusGravidez.gravidez_terceiro_trimestre) return `🤰 Grávida (Semana ${Math.floor(dados.semanasGravidez)} - Trimestre 3)`;
-  if (dados.statusGravidez === statusGravidez.apos_parto) return "Pós-parto (recuperação)";
+  const prefix = playerGenero === "Mulher" ? "Grávida" : "Parceira Grávida";
+  if (dados.statusGravidez === statusGravidez.gravidez_inicial) return `🤰 ${prefix} (Semana ${Math.floor(dados.semanasGravidez)} - Trimestre 1)`;
+  if (dados.statusGravidez === statusGravidez.gravidez_segundo_trimestre) return `🤰 ${prefix} (Semana ${Math.floor(dados.semanasGravidez)} - Trimestre 2)`;
+  if (dados.statusGravidez === statusGravidez.gravidez_terceiro_trimestre) return `🤰 ${prefix} (Semana ${Math.floor(dados.semanasGravidez)} - Trimestre 3)`;
+  if (dados.statusGravidez === statusGravidez.apos_parto) return playerGenero === "Mulher" ? "Pós-parto (recuperação)" : "Pós-parto da parceira";
 };
 
 // Penalidades de gravidez avançada (movimento, energia, etc)

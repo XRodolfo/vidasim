@@ -3,7 +3,7 @@ import { descricaoGravidez } from '../../utils/reproductionSystem';
 import { posicoesPorNegocio, calcularLucroDia } from '../../utils/businessSystem';
 import EntrevistaDialog from './EntrevistaDialog';
 
-export default function AppInventario({ player, setPlayer, mundo, voltarHome }) {
+export default function AppInventario({ player, setPlayer, mundo, voltarHome, needs, setNeeds, needSystemRef }) {
   const [abaAtiva, setAbaAtiva] = useState("assets");
   const [negocioSobGestao, setNegocioSobGestao] = useState(null); // id do negócio aberto para gestão
   const [cargoEntrevista, setCargoEntrevista] = useState(null); // cargo que está sendo entrevistado
@@ -12,6 +12,82 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
   const tabAtivaStyle = { ...tabStyle, backgroundColor: '#3b82f6' };
 
   const itemStyle = { backgroundColor: '#0f172a', padding: '10px', marginBottom: '8px', borderRadius: '6px', borderLeft: '3px solid #3b82f6' };
+
+  const usarItem = (itemId) => {
+    const item = player.inventario?.itens?.find(i => i.id === itemId);
+    if (!item || (item.quantidade || 0) <= 0) {
+      alert("Você não possui este item!");
+      return;
+    }
+
+    setPlayer(prev => {
+      const novosItens = prev.inventario.itens.map(i => {
+        if (i.id === itemId) {
+          return { ...i, quantidade: i.quantidade - 1 };
+        }
+        return i;
+      }).filter(i => i.quantidade > 0);
+
+      const dadosReprod = { ...prev.dadosReproductivos };
+      let novosAtributos = {};
+
+      if (itemId === "pilula") {
+        dadosReprod.contraceptivoAtivo = "pilula";
+      } else if (itemId === "preservativo") {
+        dadosReprod.contraceptivoAtivo = "camisinha";
+      } else if (itemId === "alcool") {
+        novosAtributos.carisma = Math.min(100, (prev.carisma || 50) + 12);
+      } else if (itemId === "chocolate") {
+        novosAtributos.energia = Math.min(100, (prev.energia || 100) + 15);
+      } else if (itemId === "perfume") {
+        novosAtributos.carisma = Math.min(100, (prev.carisma || 50) + 15);
+      } else if (itemId === "lingerie") {
+        dadosReprod.roupaIntimaEquipada = true;
+      }
+
+      return {
+        ...prev,
+        energia: novosAtributos.energia !== undefined ? novosAtributos.energia : prev.energia,
+        carisma: novosAtributos.carisma !== undefined ? novosAtributos.carisma : prev.carisma,
+        dadosReproductivos: dadosReprod,
+        inventario: {
+          ...prev.inventario,
+          itens: novosItens
+        }
+      };
+    });
+
+    // Apply needs updates to needSystemRef and state
+    if (needSystemRef?.current && setNeeds) {
+      if (itemId === "alcool") {
+        needSystemRef.current.addNeed("social", 25);
+        needSystemRef.current.addNeed("ambition", 5);
+        needSystemRef.current.addNeed("sleep", -5); // Alcohol drains sleep
+      } else if (itemId === "chocolate") {
+        needSystemRef.current.addNeed("hunger", 30);
+        needSystemRef.current.addNeed("ambition", 15);
+      } else if (itemId === "perfume") {
+        needSystemRef.current.addNeed("ambition", 10);
+      } else if (itemId === "lingerie") {
+        needSystemRef.current.addNeed("ambition", 15);
+      }
+      setNeeds(needSystemRef.current.getNeeds());
+    }
+
+    if (itemId === "pilula") {
+      alert("💊 Pílula anticoncepcional ingerida. Contraceptivo ativo alterado para Pílula.");
+    } else if (itemId === "preservativo") {
+      alert("👉 Você ativou a Camisinha como seu contraceptivo ativo principal.");
+    } else if (itemId === "alcool") {
+      alert("🍺 Você tomou a bebida alcoólica. Sente-se desinibido! (+25 Social, +12 Carisma, -5% Sono)");
+    } else if (itemId === "chocolate") {
+      alert("🍫 Você comeu o chocolate especial. Delicioso! (+30 Fome, +15 Ambição, +15% Energia)");
+    } else if (itemId === "perfume") {
+      alert("✨ Você passou o perfume premium. Sente-se mais atraente! (+15 Carisma, +10 Ambição)");
+    } else if (itemId === "lingerie") {
+      alert("👗 Você vestiu a lingerie sensual. Aumentou sua confiança! (+15 Ambição)");
+    }
+  };
 
   const gerirEmpresa = (id, tipo, posId = null) => {
     const neg = player.negocios?.[id];
@@ -34,6 +110,11 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
       });
       alert("Funcionário demitido!");
     } else if (tipo === "marketing") {
+      const negMarketing = neg.marketing || 1;
+      if (negMarketing >= 10) {
+        alert("O marketing já atingiu o nível máximo (10)!");
+        return;
+      }
       if (player.dinheiro < 5000) {
         alert("Sem fundos suficientes (R$ 5.000)!");
         return;
@@ -41,7 +122,7 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
       setPlayer(prev => {
         const negocios = { ...prev.negocios };
         const meu = { ...negocios[id] };
-        meu.marketing = (meu.marketing || 1) + 1;
+        meu.marketing = negMarketing + 1;
         negocios[id] = meu;
         return {
           ...prev,
@@ -51,6 +132,11 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
       });
       alert("Campanha de marketing lançada com sucesso!");
     } else if (tipo === "reforma") {
+      const negNivel = neg.nivel || 1;
+      if (negNivel >= 5) {
+        alert("O estabelecimento já atingiu o nível estrutural máximo (5⭐)!");
+        return;
+      }
       const custo = Math.round(neg.preco * 0.4);
       if (player.dinheiro < custo) {
         alert(`A reforma de infraestrutura custa R$ ${custo.toLocaleString()}!`);
@@ -59,7 +145,7 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
       setPlayer(prev => {
         const negocios = { ...prev.negocios };
         const meu = { ...negocios[id] };
-        meu.nivel = (meu.nivel || 1) + 1;
+        meu.nivel = negNivel + 1;
         meu.rendaBase = Math.round(meu.rendaBase * 1.5);
         negocios[id] = meu;
         return {
@@ -68,7 +154,7 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
           negocios
         };
       });
-      alert(`🎉 Reforma concluída! Estabelecimento melhorado para Nível ${neg.nivel + 1 || 2}.`);
+      alert(`🎉 Reforma concluída! Estabelecimento melhorado para Nível ${negNivel + 1}.`);
     }
   };
 
@@ -132,85 +218,173 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
           <div>
             <h3 style={{ color: '#60a5fa', marginTop: 0, fontSize: '14px' }}>🏡 Moradias</h3>
             
-            {/* Harém / Apartamento de Origem */}
-            <div style={itemStyle}>
-              <div style={{ color: '#a78bfa', fontWeight: 'bold', fontSize: '13px' }}>Apartamento Simples (Início)</div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Qualidade: ⭐ | Valor: Inicial</div>
-              <div style={{ marginTop: '5px' }}>
-                {player.casa?.tipo === "apartamento_simples" ? (
-                  <span style={{ color: '#10b981', fontWeight: 'bold', fontSize: '11px' }}>🏡 Residência Principal</span>
-                ) : (
-                  <button
-                    onClick={() => {
-                      if (setPlayer) {
-                        setPlayer(prev => ({
-                          ...prev,
-                          casa: { ...prev.casa, tipo: "apartamento_simples", nome: "Apartamento Simples" }
-                        }));
-                      }
-                      alert("Residência principal alterada para: Apartamento Simples!");
-                    }}
-                    style={btnMiniAction}
-                  >
-                    Mudar para esta casa
-                  </button>
-                )}
-              </div>
-            </div>
-
             {player.inventario?.imoveis && player.inventario.imoveis.length > 0 ? (
               player.inventario.imoveis.map((imovel, idx) => {
-                const eMoradiaPrincipal = player.casa?.tipo === imovel.tipo;
+                const eMoradiaPrincipal = player.casa?.id === imovel.id;
+                const naCidadeAtual = imovel.cidade === player.cidade_id;
+                const cidadeNome = mundo[imovel.cidade]?.nome || "Outra Cidade";
                 const diasDePosse = player.dia - (imovel.diaCompra || 1);
-                const precoVenda = Math.round(imovel.preco * (0.8 + (diasDePosse * 0.015)));
+                const precoVenda = imovel.preco ? Math.round(imovel.preco * (0.8 + (diasDePosse * 0.015))) : 0;
                 return (
-                  <div key={idx} style={itemStyle}>
-                    <div style={{ color: '#a78bfa', fontWeight: 'bold', fontSize: '13px' }}>{imovel.nome}</div>
+                  <div key={imovel.id || idx} style={itemStyle}>
+                    <div style={{ color: '#a78bfa', fontWeight: 'bold', fontSize: '13px' }}>
+                      {imovel.nome} {eMoradiaPrincipal && " (Principal)"}
+                      {imovel.alugadoParaInquilino && <span style={{ color: '#10b981', fontSize: '11px', marginLeft: '6px' }}>[ALUGADO A INQUILINO]</span>}
+                    </div>
                     <div style={{ fontSize: '11px', color: '#94a3b8' }}>
-                      Qualidade: {'⭐'.repeat(imovel.qualidade)} | Valor Pago: R$ {imovel.preco.toLocaleString()}
+                      Cidade: <strong>{cidadeNome}</strong> | Qualidade: {'⭐'.repeat(imovel.qualidade)}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#fb7185' }}>
-                      Valor de Venda: R$ {precoVenda.toLocaleString()} (Possuído há {diasDePosse} dias)
+                    <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '2px' }}>
+                      {imovel.alugado ? (
+                        <span style={{ color: '#c084fc' }}>🔑 Você paga: R$ {imovel.aluguel.toLocaleString()}/mês</span>
+                      ) : (
+                        <span>💰 Comprado por: R$ {imovel.preco.toLocaleString()}</span>
+                      )}
                     </div>
-                    <div style={{ marginTop: '5px', display: 'flex', gap: '5px' }}>
+                    {imovel.alugadoParaInquilino && (
+                      <div style={{ fontSize: '11px', color: '#10b981', fontWeight: 'bold', marginTop: '2px' }}>
+                        📈 Rendimento passivo: +R$ {imovel.rendimentoAluguel.toLocaleString()}/mês (+R$ {Math.round(imovel.rendimentoAluguel / 30)}/dia)
+                      </div>
+                    )}
+                    {!imovel.alugado && !imovel.alugadoParaInquilino && (
+                      <div style={{ fontSize: '11px', color: '#fb7185' }}>
+                        Valor de Venda: R$ {precoVenda.toLocaleString()} (Possuído há {diasDePosse} dias)
+                      </div>
+                    )}
+                    <div style={{ marginTop: '5px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                       {eMoradiaPrincipal ? (
                         <span style={{ color: '#10b981', fontWeight: 'bold', fontSize: '11px' }}>🏡 Residência Principal</span>
                       ) : (
                         <>
-                          <button
-                            onClick={() => {
-                              if (setPlayer) {
-                                setPlayer(prev => ({
-                                  ...prev,
-                                  casa: { ...prev.casa, tipo: imovel.tipo, nome: imovel.nome }
-                                }));
-                              }
-                              alert(`Você mudou sua residência principal para: ${imovel.nome}`);
-                            }}
-                            style={btnMiniAction}
-                          >
-                            Mudar para esta casa
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (!window.confirm(`Tem certeza que deseja vender ${imovel.nome} por R$ ${precoVenda.toLocaleString()}?`)) return;
-                              setPlayer(prev => {
-                                const novosImoveis = prev.inventario?.imoveis?.filter(im => im.id !== imovel.id) || [];
-                                return {
-                                  ...prev,
-                                  dinheiro: prev.dinheiro + precoVenda,
-                                  inventario: {
-                                    ...prev.inventario,
-                                    imoveis: novosImoveis
-                                  }
-                                };
-                              });
-                              alert(`💰 Você vendeu ${imovel.nome} por R$ ${precoVenda.toLocaleString()}!`);
-                            }}
-                            style={{ ...btnMiniAction, backgroundColor: '#ef4444' }}
-                          >
-                            Vender
-                          </button>
+                          {naCidadeAtual && !imovel.alugadoParaInquilino ? (
+                            <button
+                              onClick={() => {
+                                if (setPlayer) {
+                                  setPlayer(prev => ({
+                                    ...prev,
+                                    casa: { id: imovel.id, tipo: imovel.tipo, nome: imovel.nome }
+                                  }));
+                                }
+                                alert(`Você mudou sua residência principal para: ${imovel.nome}`);
+                              }}
+                              style={btnMiniAction}
+                            >
+                              Mudar para esta casa
+                            </button>
+                          ) : (
+                            naCidadeAtual && imovel.alugadoParaInquilino ? null : (
+                              <span style={{ color: '#94a3b8', fontSize: '11px', fontStyle: 'italic' }}>
+                                📍 Disponível apenas em {cidadeNome}
+                              </span>
+                            )
+                          )}
+
+                          {imovel.alugado ? (
+                            <button
+                              onClick={() => {
+                                if (!window.confirm(`Tem certeza que deseja cancelar o aluguel de ${imovel.nome}?`)) return;
+                                setPlayer(prev => {
+                                  const novosImoveis = prev.inventario?.imoveis?.filter(im => im.id !== imovel.id) || [];
+                                  const novaCasa = prev.casa?.id === imovel.id
+                                    ? { id: "albergue", tipo: "apartamento_simples", nome: "Albergue Municipal" }
+                                    : prev.casa;
+                                  return {
+                                    ...prev,
+                                    casa: novaCasa,
+                                    inventario: {
+                                      ...prev.inventario,
+                                      imoveis: novosImoveis
+                                    }
+                                  };
+                                });
+                                alert(`🔑 Aluguel de ${imovel.nome} cancelado.`);
+                              }}
+                              style={{ ...btnMiniAction, backgroundColor: '#f97316' }}
+                            >
+                              Cancelar Aluguel
+                            </button>
+                          ) : (
+                            <>
+                              {imovel.alugadoParaInquilino ? (
+                                <button
+                                  onClick={() => {
+                                    if (!window.confirm(`Tem certeza que deseja despejar o inquilino de ${imovel.nome}?`)) return;
+                                    setPlayer(prev => {
+                                      const novosImoveis = prev.inventario?.imoveis?.map(im => {
+                                        if (im.id === imovel.id) {
+                                          return { ...im, alugadoParaInquilino: false, rendimentoAluguel: 0 };
+                                        }
+                                        return im;
+                                      }) || [];
+                                      return {
+                                        ...prev,
+                                        inventario: {
+                                          ...prev.inventario,
+                                          imoveis: novosImoveis
+                                        }
+                                      };
+                                    });
+                                    alert(`🚫 Você despejou o inquilino de ${imovel.nome}. O imóvel agora está disponível.`);
+                                  }}
+                                  style={{ ...btnMiniAction, backgroundColor: '#f97316' }}
+                                >
+                                  Despejar Inquilino
+                                </button>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      const rentValue = Math.round(imovel.preco * 0.0055);
+                                      if (!window.confirm(`Gostaria de alugar ${imovel.nome} para um inquilino por R$ ${rentValue.toLocaleString()}/mês?`)) return;
+                                      setPlayer(prev => {
+                                        const novosImoveis = prev.inventario?.imoveis?.map(im => {
+                                          if (im.id === imovel.id) {
+                                            return { ...im, alugadoParaInquilino: true, rendimentoAluguel: rentValue };
+                                          }
+                                          return im;
+                                        }) || [];
+                                        return {
+                                          ...prev,
+                                          inventario: {
+                                            ...prev.inventario,
+                                            imoveis: novosImoveis
+                                          }
+                                        };
+                                      });
+                                      alert(`📈 Imóvel alugado com sucesso! Você receberá R$ ${rentValue.toLocaleString()}/mês passivamente.`);
+                                    }}
+                                    style={{ ...btnMiniAction, backgroundColor: '#10b981' }}
+                                  >
+                                    Alugar para Inquilino
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      if (!window.confirm(`Tem certeza que deseja vender ${imovel.nome} por R$ ${precoVenda.toLocaleString()}?`)) return;
+                                      setPlayer(prev => {
+                                        const novosImoveis = prev.inventario?.imoveis?.filter(im => im.id !== imovel.id) || [];
+                                        const novaCasa = prev.casa?.id === imovel.id
+                                          ? { id: "albergue", tipo: "apartamento_simples", nome: "Albergue Municipal" }
+                                          : prev.casa;
+                                        return {
+                                          ...prev,
+                                          dinheiro: prev.dinheiro + precoVenda,
+                                          casa: novaCasa,
+                                          inventario: {
+                                            ...prev.inventario,
+                                            imoveis: novosImoveis
+                                          }
+                                        };
+                                      });
+                                      alert(`💰 Você vendeu ${imovel.nome} por R$ ${precoVenda.toLocaleString()}!`);
+                                    }}
+                                    style={{ ...btnMiniAction, backgroundColor: '#ef4444' }}
+                                  >
+                                    Vender
+                                  </button>
+                                </>
+                              )}
+                            </>
+                          )}
                         </>
                       )}
                     </div>
@@ -281,16 +455,36 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
           <div>
             <h3 style={{ color: '#60a5fa', marginTop: 0, fontSize: '14px' }}>📦 Itens em Mãos</h3>
             {player.inventario?.itens && player.inventario.itens.length > 0 ? (
-              player.inventario.itens.map((item, idx) => (
-                <div key={idx} style={itemStyle}>
-                  <div style={{ color: '#a78bfa', fontWeight: 'bold', fontSize: '13px' }}>
-                    {item.nome} {item.quantidade ? `(x${item.quantidade})` : ''}
+              player.inventario.itens.map((item, idx) => {
+                const podeUsar = ["preservativo", "pilula", "alcool", "chocolate", "lingerie", "perfume"].includes(item.id);
+                return (
+                  <div key={idx} style={itemStyle}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ color: '#a78bfa', fontWeight: 'bold', fontSize: '13px' }}>
+                          {item.nome} {item.quantidade ? `(x${item.quantidade})` : ''}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                          Tipo: {item.tipo} | Efeito: {item.efeito}
+                        </div>
+                      </div>
+                      {podeUsar && (
+                        <button
+                          onClick={() => usarItem(item.id)}
+                          style={{
+                            ...btnMiniAction,
+                            backgroundColor: '#10b981',
+                            padding: '6px 12px',
+                            borderRadius: '4px'
+                          }}
+                        >
+                          Usar
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '11px', color: '#94a3b8' }}>
-                    Tipo: {item.tipo} | Efeito: {item.efeito}
-                  </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div style={{ color: '#64748b', fontSize: '12px' }}>
                 Nenhum consumível ou roupa íntima sensual em inventário.
@@ -393,11 +587,11 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
           <div>
             <h3 style={{ color: '#60a5fa', marginTop: 0, fontSize: '14px' }}>💓 Status de Reprodução</h3>
             
-            {player.genero === "Mulher" ? (
+            {player.dadosReproductivos ? (
               <>
                 <div style={itemStyle}>
                   <div style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: '13px' }}>
-                    Status: {descricaoGravidez(player.dadosReproductivos)}
+                    Status: {descricaoGravidez(player.dadosReproductivos, player.genero)}
                   </div>
                 </div>
 
@@ -409,7 +603,9 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
                 </div>
 
                 <div style={itemStyle}>
-                  <div style={{ color: '#a78bfa', fontWeight: 'bold', fontSize: '13px' }}>Contraceptivo Ativo</div>
+                  <div style={{ color: '#a78bfa', fontWeight: 'bold', fontSize: '13px' }}>
+                    {player.genero === "Mulher" ? "Contraceptivo Ativo" : "Contraceptivo do Casal"}
+                  </div>
                   <div style={{ fontSize: '11px', color: '#94a3b8' }}>
                     {player.dadosReproductivos?.contraceptivoAtivo || 'Nenhum'}
                   </div>
@@ -424,18 +620,16 @@ export default function AppInventario({ player, setPlayer, mundo, voltarHome }) 
 
                 {player.dadosReproductivos?.statusGravidez !== 0 && (
                   <div style={{ ...itemStyle, borderLeftColor: '#ec4899' }}>
-                    <div style={{ color: '#ec4899', fontWeight: 'bold', fontSize: '13px' }}>⚠️ Gravidez Ativa</div>
+                    <div style={{ color: '#ec4899', fontWeight: 'bold', fontSize: '13px' }}>
+                      {player.genero === "Mulher" ? "⚠️ Gravidez Ativa" : "⚠️ Parceira Grávida"}
+                    </div>
                     <div style={{ fontSize: '11px', color: '#94a3b8' }}>
                       Semanas: {Math.floor(player.dadosReproductivos.semanasGravidez)}
                     </div>
                   </div>
                 )}
               </>
-            ) : (
-              <div style={{ color: '#64748b', fontSize: '12px' }}>
-                ℹ️ Você não é mulher biológica. Status de gravidez não se aplica.
-              </div>
-            )}
+            ) : null}
 
             <h3 style={{ color: '#60a5fa', marginTop: '15px', fontSize: '14px' }}>📊 Habilidades Sexuais</h3>
             <div style={itemStyle}>

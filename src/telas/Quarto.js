@@ -2,10 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Avatar from '../componentes/Avatar';
 import { obterComotos, executarAtividade, calcularCorQualidade } from '../utils/casasSystem';
 
-export default function Quarto({ player, setPlayer, mundo, t, salvarJogo, dormir, avancarTempo, setTelaAtual, contatosNPCs = [], setContatosNPCs }) {
+export default function Quarto({ player, setPlayer, mundo, t, salvarJogo, dormir, avancarTempo, setTelaAtual, contatosNPCs = [], setContatosNPCs, needs, setNeeds, needSystemRef }) {
   const imovelAtual = useMemo(() => {
-    return player.inventario?.imoveis?.find(im => im.tipo === player.casa?.tipo) || { tipo: "apartamento_simples", nome: player.casa?.nome || t?.quarto || "Meu Quarto", qualidade: 1 };
-  }, [player.inventario?.imoveis, player.casa, t]);
+    return player.inventario?.imoveis?.find(im => im.id === player.casa?.id && im.cidade === player.cidade_id)
+           || player.inventario?.imoveis?.find(im => im.cidade === player.cidade_id)
+           || { tipo: "apartamento_simples", nome: "Albergue Municipal (Hostel)", qualidade: 1, cidade: player.cidade_id };
+  }, [player.inventario?.imoveis, player.casa, player.cidade_id]);
   const [comodoAtual, setComodoAtual] = useState(null);
   const [msgDomestica, setMsgDomestica] = useState("");
   const comodosDisponiveis = obterComotos(imovelAtual.tipo);
@@ -19,8 +21,18 @@ export default function Quarto({ player, setPlayer, mundo, t, salvarJogo, dormir
   }, [imovelAtual, comodosDisponiveis, comodoAtual]);
 
   const handleExecutarAtividade = (atividade) => {
-    // Passamos o avancarTempo aqui para a hora correr corretamente!
-    executarAtividade(atividade, player, setPlayer, dormir, avancarTempo);
+    // Callback que aplica deltas de necessidades via o sistema de necessidades
+    const onNeedsEffect = (needsEffect) => {
+      if (!needSystemRef?.current || !setNeeds) return;
+      // Se godMode, "set" direto para 100 em vez de somar delta
+      if (player.godMode) {
+        needSystemRef.current.fillAll();
+      } else {
+        needSystemRef.current.applyEffects(needsEffect);
+      }
+      setNeeds(needSystemRef.current.getNeeds());
+    };
+    executarAtividade(atividade, player, setPlayer, dormir, avancarTempo, onNeedsEffect);
   };
 
   const interagirMorador = (npc, acao) => {

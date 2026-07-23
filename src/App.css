@@ -1,9 +1,10 @@
 body {
-  background-color: #121212;
-  color: #e0e0e0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 20px;
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 .container {
@@ -12,66 +13,71 @@ body {
 }
 
 h1, h2 {
-  color: #ffffff;
+  color: var(--color-text);
   text-align: center;
 }
 
 .card {
-  background-color: #1e1e1e;
+  background-color: var(--color-surface);
   border-radius: 8px;
   padding: 25px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   gap: 15px;
   margin-bottom: 20px;
+  border: 1px solid var(--glass-border);
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 label {
   font-weight: bold;
-  color: #bbbbbb;
+  color: var(--color-muted);
 }
 
 input, select {
   padding: 12px;
-  background-color: #2d2d2d;
-  color: white;
-  border: 1px solid #444;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--glass-border);
   border-radius: 4px;
   font-size: 16px;
 }
 
 button {
   padding: 15px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
   border: none;
   border-radius: 6px;
   font-weight: bold;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.15s ease;
 }
 
 button:hover {
   background-color: #0056b3;
+  transform: translateY(-1px);
 }
 
 .hud {
   display: flex;
   justify-content: space-between;
-  background-color: #0d47a1;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
   font-weight: bold;
   flex-wrap: wrap;
   gap: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: var(--color-text);
 }
 
 .hud-info {
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.05);
   padding: 8px 12px;
   border-radius: 4px;
 }

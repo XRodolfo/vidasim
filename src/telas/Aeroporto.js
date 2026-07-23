@@ -17,11 +17,18 @@ export default function Aeroporto({ player, setPlayer, mundo, avancarTempo, setT
       return;
     }
 
+    // Encontra se já tem algum imóvel comprado ou alugado na cidade de destino
+    const imovelDestino = player.inventario?.imoveis?.find(im => im.cidade === idDestino);
+    const novaCasa = imovelDestino 
+      ? { id: imovelDestino.id, tipo: imovelDestino.tipo, nome: imovelDestino.nome }
+      : { id: "albergue", tipo: "apartamento_simples", nome: "Albergue Municipal" };
+
     // Processa a Viagem
     setPlayer({ 
        ...player, 
        cidade_id: idDestino, 
-       dinheiro: player.dinheiro - precoPassagem 
+       dinheiro: player.dinheiro - precoPassagem,
+       casa: novaCasa
     });
     
     setMensagem(`✈️ EMBARQUE CONFIRMADO! Você voou por 6 horas e acaba de desembarcar em ${mundo[idDestino].nome}!`);

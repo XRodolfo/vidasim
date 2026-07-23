@@ -186,17 +186,23 @@ export default function Criacao({ player, setPlayer, mundo, t, iniciarJogo, setT
               <label>Peso (kg)</label>
               <input type="number" value={player.peso} onChange={(e) => setPlayer({...player, peso: parseInt(e.target.value) || 60})} />
 
-              <label>🏋️ Força / Tonificação:</label>
-              <input 
-                type="range" min="10" max="100" 
-                value={player.forca || 50} 
-                onChange={(e) => setPlayer({...player, forca: parseInt(e.target.value)})} 
-              />
-              <small style={{ marginTop: '-5px', color: '#ccc' }}>
-                {player.forca >= 80 ? "💪 Ripped / Muito Musculoso" : 
-                 player.forca >= 55 ? "👟 Tonificado / Atlético" : 
-                 player.forca >= 30 ? "🏃 Leve Definição" : "🥚 Sem Definição"} ({player.forca || 50})
-              </small>
+              {/* IMC calculado automaticamente — força não é editável na criação */}
+              {(() => {
+                const imc = player.peso / Math.pow(player.altura / 100, 2);
+                let imcLabel = '';
+                let imcColor = '#ccc';
+                if (imc < 18.5) { imcLabel = '🪶 Abaixo do peso'; imcColor = '#74b9ff'; }
+                else if (imc < 25) { imcLabel = '✅ Peso normal'; imcColor = '#55efc4'; }
+                else if (imc < 30) { imcLabel = '⚠️ Sobrepeso'; imcColor = '#fdcb6e'; }
+                else { imcLabel = '🔴 Obesidade'; imcColor = '#ff6b6b'; }
+                return (
+                  <div style={{ padding: '8px 10px', backgroundColor: '#1a1a2e', borderRadius: '6px', border: '1px solid #333' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#888', marginBottom: 2 }}>📊 IMC Calculado</div>
+                    <div style={{ fontWeight: 'bold', color: imcColor }}>{imc.toFixed(1)} — {imcLabel}</div>
+                    <div style={{ fontSize: '0.7rem', color: '#666', marginTop: 2 }}>A força é desenvolvida treinando na academia.</div>
+                  </div>
+                );
+              })()}
 
               <label>🎨 Cor de Pele:</label>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

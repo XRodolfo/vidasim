@@ -15,6 +15,12 @@ export default function AppChat({ player, setPlayer, mundo, contatosNPCs, setCon
     setContatosNPCs(contatosNPCs.map(npc => npc.id === id ? { ...npc, ...mudancas } : npc));
   };
 
+  // Ao abrir conversa: reseta o timer de contato
+  const abrirChat = (npcId) => {
+    setNpcAtivoId(npcId);
+    setContatosNPCs(prev => prev.map(n => n.id === npcId ? { ...n, diasDesdeContato: 0, statusContato: 'ativo' } : n));
+  };
+
   const interagir = (tipo) => {
     if (!avancarTempo(1, 5)) return;
     
@@ -42,12 +48,33 @@ export default function AppChat({ player, setPlayer, mundo, contatosNPCs, setCon
         {contatosNPCs.length === 0 ? <p style={{color: '#64748b'}}>Nenhum contato salvo.</p> : (
           <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
             {contatosNPCs.map(npc => (
-              <div key={npc.id} onClick={() => setNpcAtivoId(npc.id)} style={{backgroundColor: '#1e293b', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px'}}>
+              <div key={npc.id} onClick={() => abrirChat(npc.id)} style={{backgroundColor: '#1e293b', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px'}}>
                 <div style={{width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#ececec', overflow: 'hidden'}}><div style={{transform: 'scale(1.7)', transformOrigin: 'top center'}}><Avatar player={npc} mundo={mundo}/></div></div>
                 <div style={{flex: 1}}>
-                  <strong>{npc.nome}</strong><br/>
-                  <span style={{fontSize: '11px', color: '#cbd5e1'}}>{npc.idade} anos | {npc.estadoCivil}</span><br/>
-                  <span style={{fontSize: '11px', color: '#94a3b8'}}>{npc.profissao} | Afeto: {npc.afeto}%</span>
+                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <strong>{npc.nome}</strong>
+                      {npc.temMensagemNaoLida && (
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6', display: 'inline-block' }} />
+                      )}
+                    </div>
+                    {/* Status de contato */}
+                    {npc.statusContato === 'sumido' && <span style={{fontSize:'10px', backgroundColor:'#ef4444', color:'#fff', padding:'1px 5px', borderRadius:'10px'}}>📵 Sumido</span>}
+                    {npc.statusContato === 'distante' && <span style={{fontSize:'10px', backgroundColor:'#f97316', color:'#fff', padding:'1px 5px', borderRadius:'10px'}}>🕐 Distante</span>}
+                    {npc.statusContato === 'ausente' && <span style={{fontSize:'10px', backgroundColor:'#eab308', color:'#000', padding:'1px 5px', borderRadius:'10px'}}>🌙 Ausente</span>}
+                  </div>
+                  <span style={{fontSize: '11px', color: '#cbd5e1'}}>{npc.idade} anos | {npc.estadoCivil}{npc.parceiro_nome ? ` com ${npc.parceiro_nome}` : ''}</span><br/>
+                  <span style={{fontSize: '11px', color: '#94a3b8'}}>{npc.profissao} | Afeto: {Math.round(npc.afeto || 10)}%</span>
+                  {/* Humor */}
+                  {npc.humor !== undefined && (
+                    <span style={{fontSize:'10px', color: npc.humor >= 70 ? '#55efc4' : npc.humor >= 40 ? '#fdcb6e' : '#ff6b6b', marginLeft:'6px'}}>
+                      {npc.humor >= 70 ? '😄' : npc.humor >= 40 ? '😐' : '😤'} Humor: {npc.humor}
+                    </span>
+                  )}
+                  {/* Evento recente */}
+                  {npc.eventos_recentes?.length > 0 && (
+                    <div style={{fontSize:'10px', color:'#a78bfa', marginTop:'2px'}}>✨ {npc.eventos_recentes[npc.eventos_recentes.length - 1].msg}</div>
+                  )}
                   {npc.fetiches && npc.fetiches.length > 0 && (
                     <div style={{ color: '#ec4899', fontSize: '11px', marginTop: '2px' }}>
                       💕 Fetiches: {npc.fetiches.map(f => f.nome).join(", ")}
@@ -125,20 +152,28 @@ export default function AppChat({ player, setPlayer, mundo, contatosNPCs, setCon
       </div>
 
       <div style={{backgroundColor: '#1e293b', padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px'}}>
-        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px'}}>
+        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '5px'}}>
           <button onClick={() => interagir('trabalho')} style={btnTopico}>💼 Trabalho</button>
           <button onClick={() => interagir('flerte')} style={{...btnTopico, color: '#fb7185'}}>😏 Charme</button>
           <button onClick={() => setAgendarEncontro(true)} style={{...btnTopico, backgroundColor: '#ec4899', color: '#fff'}}>🌹 Sair</button>
-          {!npcAtivo.mora_junto && <button onClick={() => setDialogoRelacionamento('morar_junto')} style={{...btnTopico, backgroundColor: '#8b5cf6', color: '#fff'}}>🔑 Morar Junto</button>}
         </div>
 
         <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px'}}>
-          {player.relacionamento?.parceiro?.npc_id !== npcAtivoId ? (
-            <button onClick={() => setDialogoRelacionamento('propor_namoro')} style={{...btnTopico, backgroundColor: '#ec4899', color: '#fff'}}>💕 Namoro</button>
-          ) : (
-            <button onClick={() => setDialogoRelacionamento('propor_casamento')} style={{...btnTopico, backgroundColor: '#d946ef', color: '#fff'}}>💍 Casar</button>
-          )}
+          {!npcAtivo.mora_junto && <button onClick={() => setDialogoRelacionamento('morar_junto')} style={{...btnTopico, backgroundColor: '#8b5cf6', color: '#fff'}}>🔑 Morar Junto</button>}
           <button onClick={() => setDialogoRelacionamento('conversa_gravidez')} style={{...btnTopico, backgroundColor: '#fb923c', color: '#fff'}}>🤰 Filhos / Gravidez</button>
+        </div>
+
+        <div style={{display: 'grid', gridTemplateColumns: '1fr', gap: '5px'}}>
+          {player.relacionamento?.parceiro?.npc_id !== npcAtivoId ? (
+            <button onClick={() => setDialogoRelacionamento('propor_namoro')} style={{...btnTopico, backgroundColor: '#ec4899', color: '#fff'}}>💕 Propor Namoro</button>
+          ) : (
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px'}}>
+              {player.relacionamento?.status !== 'casado' && (
+                <button onClick={() => setDialogoRelacionamento('propor_casamento')} style={{...btnTopico, backgroundColor: '#d946ef', color: '#fff'}}>💍 Casar</button>
+              )}
+              <button onClick={() => setDialogoRelacionamento('terminar_relacionamento')} style={{...btnTopico, backgroundColor: '#ef4444', color: '#fff'}}>💔 Terminar</button>
+            </div>
+          )}
         </div>
       </div>
 

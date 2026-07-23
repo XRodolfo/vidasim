@@ -1,6 +1,7 @@
 import { culturas } from '../dados';
 import { gerarFetchesAleatorias } from './fetchesSystem';
 import { inicializarDadosReproductivos } from './reproductionSystem';
+import { gerarRotinaNPC } from './npcLifeSystem';
 
 export const gerarNPC = (player, mundo) => {
   const etnias = ["Latina", "Asiática", "Negra", "Mista", "Branca"];
@@ -85,7 +86,19 @@ export const gerarNPC = (player, mundo) => {
     corPeleSorteada = Math.random() > 0.5 ? "#E1B585" : "#D58E5F";
   }
 
-  return {
+  // ─── Atributos base ────────────────────────────────────────────────
+  const inteligenciaBase = 20 + Math.floor(Math.random() * 60);
+  const carismaBase = 20 + Math.floor(Math.random() * 60);
+  const forcaBase = 10 + Math.floor(Math.random() * 80);
+
+  // ─── Finanças iniciais por profissão ───────────────────────────────
+  const dinheiroInicial = {
+    'Médico(a)': 8000, 'Advogado(a)': 7000, 'Engenheiro(a)': 6000,
+    'Programador(a)': 5500, 'Designer': 3500, 'Chef': 3000,
+    'Artista': 1500, 'Modelo': 4000, 'Estudante': 500, 'Desempregado(a)': 200
+  }[profissao] || 2000;
+
+  const npcBase = {
     id: Math.random().toString(),
     nome: `${primeiroNome} ${sobrenome}`,
     idade: idadeNPC,
@@ -93,7 +106,9 @@ export const gerarNPC = (player, mundo) => {
     estadoCivil: estadoCivilSorteado, conjuge: nomeConjuge,
     profissao: profissao, bio: bioFinal,
     afeto: 10, fidelidade: Math.floor(Math.random() * 100), libido: 30 + Math.floor(Math.random() * 70), historico: [],
-    forca: 10 + Math.floor(Math.random() * 80), // Força física aleatória
+    forca: forcaBase,
+    inteligencia: inteligenciaBase,
+    carisma: carismaBase,
     altura: 155 + Math.floor(Math.random() * 35), peso: 50 + Math.floor(Math.random() * 40),
     seios_cm: generoNPC === "Mulher" ? 80 + Math.floor(Math.random() * 40) : 0,
     penis_cm: generoNPC === "Homem" ? 12 + Math.floor(Math.random() * 10) : 0,
@@ -112,6 +127,19 @@ export const gerarNPC = (player, mundo) => {
     fetiches: gerarFetchesAleatorias(),
     virgem: eVirgem,
     sensibilidade: 30 + Math.random() * 40,
-    dadosReproductivos: inicializarDadosReproductivos()
+    dadosReproductivos: inicializarDadosReproductivos(),
+    // ─── Campos de vida autônoma (npcLifeSystem) ───────────────────
+    dinheiro: dinheiroInicial,
+    humor: 50 + Math.floor(Math.random() * 30),       // 50-80 inicial
+    diasDesdeContato: 0,
+    statusContato: 'ativo',
+    parceiro_id: null,
+    parceiro_nome: null,
+    eventos_recentes: [],
   };
+
+  // Gera rotina baseada na profissão e personalidade
+  npcBase.rotina = gerarRotinaNPC(npcBase);
+
+  return npcBase;
 };

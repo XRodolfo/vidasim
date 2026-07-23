@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { proporNameoro, proporCasamento, conversoGravidez } from '../utils/relationshipSystem';
+import { proporNameoro, proporCasamento, conversoGravidez, terminarRelacionamento } from '../utils/relationshipSystem';
 
 export default function DialogoRelacionamento({
   npc,
@@ -30,6 +30,8 @@ export default function DialogoRelacionamento({
       } else {
         res = { sucesso: false, mensagem: `"Acho que estamos indo rápido demais... preciso de mais tempo (Requer 80+ de Afeto)."` };
       }
+    } else if (tipo === "terminar_relacionamento") {
+      res = terminarRelacionamento(player, relacionamento, "desentendimento");
     }
 
     setResultado(res);
@@ -55,11 +57,23 @@ export default function DialogoRelacionamento({
           }
         }));
       } else if (res.novoRelacionamento) {
-        // Atualiza estado do player (Casamento)
+        // Atualiza estado do player (Casamento ou Terminar)
         setPlayer(prev => ({
           ...prev,
           relacionamento: res.novoRelacionamento
         }));
+        
+        if (tipo === "terminar_relacionamento" && setContatosNPCs) {
+          setContatosNPCs(prev => prev.map(c => c.id === npc.id ? {
+            ...c,
+            estadoCivil: "Solteiro(a)",
+            parceiro_id: null,
+            parceiro_nome: null,
+            mora_junto: false,
+            afeto: Math.max(0, (c.afeto || 10) - 40), // Perda brusca de afeto
+            eventos_recentes: [...(c.eventos_recentes || []), { tipo: 'separacao', msg: `Terminou o relacionamento com você. 💔`, dia: Date.now() }].slice(-5)
+          } : c));
+        }
       }
     } else {
       setFaseDialog("fracasso");
@@ -133,10 +147,20 @@ export default function DialogoRelacionamento({
               <>
                 <p style={{ marginBottom: '15px' }}>Você vai pedir <strong>{npc.nome}</strong> em casamento.</p>
                 <div style={{ backgroundColor: '#0f172a', padding: '12px', borderRadius: '8px', marginBottom: '15px', fontSize: '13px', color: '#cbd5e1' }}>
-                  <strong style={{ color: '#60a5fa' }}>ℹ️</strong> Vocês precisam estar namorando há pelo menos 5 meses para isso.
+                  <strong style={{ color: '#60a5fa' }}>ℹ️</strong> Vocês precisam estar namorando há pelo menos 2 meses simulados para isso.
                 </div>
               </>
             )}
+
+            {tipo === "terminar_relacionamento" && (
+              <>
+                <p style={{ marginBottom: '15px' }}>Você quer terminar o relacionamento com <strong>{npc.nome}</strong>?</p>
+                <div style={{ backgroundColor: '#3f1f1f', border: '1px solid #ef4444', padding: '12px', borderRadius: '8px', marginBottom: '15px', fontSize: '13px', color: '#cbd5e1' }}>
+                  <strong style={{ color: '#ef4444' }}>⚠️ Cuidado:</strong> Isso mudará seu estado civil e reduzirá drasticamente o afeto mútuo.
+                </div>
+              </>
+            )}
+
 
             {tipo === "morar_junto" && (
               <>
@@ -176,6 +200,7 @@ export default function DialogoRelacionamento({
               {tipo === "propor_casamento" && <p style={{ margin: '0' }}>Vocês agora estão casados! 💍</p>}
               {tipo === "morar_junto" && <p style={{ margin: '0' }}>Vá até o seu Quarto e veja quem está lá à sua espera! 🏠</p>}
               {tipo === "conversa_gravidez" && <p style={{ margin: '0' }}>Decisão íntima confirmada no sistema.</p>}
+              {tipo === "terminar_relacionamento" && <p style={{ margin: '0' }}>O relacionamento chegou ao fim. Vocês agora são solteiros. 💔</p>}
             </div>
             <button onClick={onClose} style={{...btnRosa, width: '100%'}}>✓ Fechar</button>
           </div>
@@ -185,7 +210,7 @@ export default function DialogoRelacionamento({
         {faseDialog === "fracasso" && (
           <div>
             <h2 style={{ color: '#ef4444', marginTop: '0' }}>😢 Recusado</h2>
-            <p style={{ fontSize: '14px', marginBottom: '15px' }}>{resultado?.mensagem}</p>
+            <p style={{ fontSize: '14px', marginBottom: '15px' }}>{resultado?.mensagem || resultado?.erro}</p>
             <div style={{ backgroundColor: '#3f1f1f', border: '2px solid #ef4444', borderRadius: '8px', padding: '12px', marginBottom: '15px', fontSize: '13px', color: '#cbd5e1' }}>
               <p style={{ margin: '0' }}>Afeição com {npc.nome}: {npc.afeto || 0}/100</p>
             </div>

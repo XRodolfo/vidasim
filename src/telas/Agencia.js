@@ -1,10 +1,8 @@
 import React from 'react';
-import HUD from '../componentes/HUD';
 
 export default function Agencia({ player, setPlayer, mundo, t, profissoes, avancarTempo, setTelaAtual }) {
   return (
     <div className="container">
-      <HUD player={player} mundo={mundo} t={t} />
       <div className="card">
         <h2>{t.agencia}</h2>
         <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>

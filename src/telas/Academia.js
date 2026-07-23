@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import HUD from '../componentes/HUD';
 import ModalEncontro from '../componentes/ModalEncontro';
 import { gerarNPC } from '../utils/npcGenerator';
 
@@ -45,7 +44,7 @@ export default function Academia({ player, setPlayer, mundo, t, avancarTempo, se
         <ModalEncontro player={player} npc={encontroSurpresa} mundo={mundo} setContatosNPCs={setContatosNPCs} onClose={() => setEncontroSurpresa(null)} />
       )}
 
-      <HUD player={player} mundo={mundo} t={t} />
+
 
       <div style={{ padding: '20px', maxWidth: '650px', margin: '0 auto', color: '#fff', backgroundColor: '#1e272e', borderRadius: '10px', marginTop: '15px' }}>
         <h2>🏋️ Academia Iron Fitness</h2>
